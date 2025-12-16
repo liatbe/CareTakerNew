@@ -1,0 +1,119 @@
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--ios-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 0 0 var(--ios-separator) inset;
+  border: 0.5px solid var(--ios-separator);
+}
+
+.month-nav-button {
+  background-color: var(--ios-gray-1);
+  color: var(--ios-label);
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-nav-button:hover {
+  background-color: var(--ios-gray-2);
+  transform: scale(1.05);
+}
+
+.month-nav-button:active {
+  transform: scale(0.95);
+}
+
+.month-display {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.month-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.01em;
+}
+
+.today-button {
+  background-color: var(--ios-blue);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+}
+
+.today-button:hover {
+  background-color: var(--ios-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 122, 255, 0.4);
+}
+
+.today-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .month-selector {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+  }
+
+  .month-text {
+    font-size: 18px;
+  }
+
+  .month-nav-button {
+    padding: 0.5rem 0.625rem;
+    font-size: 16px;
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .today-button {
+    padding: 0.5rem 0.875rem;
+    font-size: 14px;
+  }
+
+  .month-display {
+    width: 100%;
+    order: 3;
+    margin-top: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .month-selector {
+    padding: var(--spacing-xs);
+  }
+
+  .month-text {
+    font-size: 16px;
+  }
+}
+

@@ -1,0 +1,153 @@
+.shevah-coverage {
+  width: 100%;
+}
+
+.content-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.add-row-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.add-row-button:hover {
+  background-color: #2980b9;
+}
+
+.rows-table {
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.rows-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rows-table th {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.rows-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.rows-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.rows-table input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #3498db;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.edit-button, .delete-button {
+  background: none;
+  border: 1px solid #e0e0e0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.edit-button {
+  color: #3498db;
+  border-color: #3498db;
+}
+
+.edit-button:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+.delete-button {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.delete-button:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.calculations {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+}
+
+.calculation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.calculation-row:last-child {
+  border-bottom: none;
+}
+
+.calculation-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.calculation-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+@media (max-width: 768px) {
+  .rows-table {
+    font-size: 0.9rem;
+  }
+
+  .rows-table th,
+  .rows-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .calculation-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+

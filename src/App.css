@@ -1,0 +1,9 @@
+.app {
+  min-height: 100vh;
+  background-color: var(--ios-secondary-background);
+}
+
+[dir="rtl"] .app {
+  direction: rtl;
+}
+
