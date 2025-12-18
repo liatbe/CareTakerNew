@@ -1,8 +1,0 @@
-always-auth=false
-strict-ssl=false
-progress=true
-registry=http://illin3273.corp.amdocs.com:28080/nexus/content/groups/npm_core_beta_group
-https-proxy=null
-https_proxy=null
-proxy=null
-//illin3273.corp.amdocs.com:28080/nexus/content/groups/:_auth=ZGVwbG95bWVudDpkZXBsb3ltZW50MTIz

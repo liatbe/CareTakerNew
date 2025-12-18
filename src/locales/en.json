@@ -99,7 +99,8 @@
     "pension": "Pension (6.5%)",
     "firingPayment": "Firing Payment (8.33%)",
     "defaultHours": "12.5",
-    "defaultAmountPerHour": "44"
+    "defaultAmountPerHour": "44",
+    "noEntries": "No entries for this month. Click \"Add Row\" to add an entry."
   },
   "caretakerPayslips": {
     "title": "CareTaker Payslips",

@@ -98,7 +98,8 @@
     "pension": "פנסיה (6.5%)",
     "firingPayment": "קרן פיצויים (8.33%)",
     "defaultHours": "12.5",
-    "defaultAmountPerHour": "44"
+    "defaultAmountPerHour": "44",
+    "noEntries": "אין רשומות לחודש זה. לחץ על \"הוסף שורה\" כדי להוסיף רשומה."
   },
   "caretakerPayslips": {
     "title": "תלושי שכר מטפל",
