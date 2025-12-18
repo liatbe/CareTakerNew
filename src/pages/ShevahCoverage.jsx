@@ -38,13 +38,7 @@ const ShevahCoverage = () => {
   const loadRows = () => {
     const data = storage.get('shevahCoverage', {})
     const monthData = data[currentMonthKey] || []
-    
-    if (monthData.length === 0) {
-      // Default row
-      setRows([{ id: Date.now(), hours: 12.5, amountPerHour: 44 }])
-    } else {
-      setRows(monthData)
-    }
+    setRows(monthData)
   }
 
   const saveRows = (newRows) => {
@@ -72,10 +66,6 @@ const ShevahCoverage = () => {
   }
 
   const handleDelete = (id) => {
-    if (rows.length === 1) {
-      alert(t('common.cannotDeleteLast', 'Cannot delete the last row'))
-      return
-    }
     if (window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this row?'))) {
       const updated = rows.filter(r => r.id !== id)
       saveRows(updated)
@@ -101,82 +91,88 @@ const ShevahCoverage = () => {
           </button>
         </div>
         
-        <div className="rows-table">
-          <table>
-            <thead>
-              <tr>
-                <th>{t('shevahCoverage.hours')}</th>
-                <th>{t('shevahCoverage.amountPerHour')} (₪)</th>
-                <th>{t('shevahCoverage.rowTotal')} (₪)</th>
-                <th>{t('common.edit')}</th>
-                <th>{t('common.delete')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(row => {
-                const rowTotal = row.hours * row.amountPerHour
-                return (
-                  <tr key={row.id}>
-                    <td>
-                      {editingId === row.id ? (
-                        <input
-                          type="number"
-                          defaultValue={row.hours}
-                          onBlur={(e) => handleSaveEdit(row.id, e.target.value, row.amountPerHour)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              handleSaveEdit(row.id, e.target.value, row.amountPerHour)
-                            }
-                          }}
-                          step="0.1"
-                          autoFocus
-                        />
-                      ) : (
-                        row.hours.toFixed(1)
-                      )}
-                    </td>
-                    <td>
-                      {editingId === row.id ? (
-                        <input
-                          type="number"
-                          defaultValue={row.amountPerHour}
-                          onBlur={(e) => handleSaveEdit(row.id, row.hours, e.target.value)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              handleSaveEdit(row.id, row.hours, e.target.value)
-                            }
-                          }}
-                          step="0.01"
-                        />
-                      ) : (
-                        row.amountPerHour.toFixed(2)
-                      )}
-                    </td>
-                    <td>
-                      <strong>{rowTotal.toFixed(2)}</strong>
-                    </td>
-                    <td>
-                      <button
-                        className="edit-button"
-                        onClick={() => editingId === row.id ? setEditingId(null) : setEditingId(row.id)}
-                      >
-                        {t('common.edit')}
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="delete-button"
-                        onClick={() => handleDelete(row.id)}
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        {rows.length === 0 ? (
+          <div className="empty-state">
+            <p>{t('shevahCoverage.noEntries', 'No entries for this month. Click "Add Row" to add an entry.')}</p>
+          </div>
+        ) : (
+          <div className="rows-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>{t('shevahCoverage.hours')}</th>
+                  <th>{t('shevahCoverage.amountPerHour')} (₪)</th>
+                  <th>{t('shevahCoverage.rowTotal')} (₪)</th>
+                  <th>{t('common.edit')}</th>
+                  <th>{t('common.delete')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(row => {
+                  const rowTotal = row.hours * row.amountPerHour
+                  return (
+                    <tr key={row.id}>
+                      <td>
+                        {editingId === row.id ? (
+                          <input
+                            type="number"
+                            defaultValue={row.hours}
+                            onBlur={(e) => handleSaveEdit(row.id, e.target.value, row.amountPerHour)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveEdit(row.id, e.target.value, row.amountPerHour)
+                              }
+                            }}
+                            step="0.1"
+                            autoFocus
+                          />
+                        ) : (
+                          row.hours.toFixed(1)
+                        )}
+                      </td>
+                      <td>
+                        {editingId === row.id ? (
+                          <input
+                            type="number"
+                            defaultValue={row.amountPerHour}
+                            onBlur={(e) => handleSaveEdit(row.id, row.hours, e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveEdit(row.id, row.hours, e.target.value)
+                              }
+                            }}
+                            step="0.01"
+                          />
+                        ) : (
+                          row.amountPerHour.toFixed(2)
+                        )}
+                      </td>
+                      <td>
+                        <strong>{rowTotal.toFixed(2)}</strong>
+                      </td>
+                      <td>
+                        <button
+                          className="edit-button"
+                          onClick={() => editingId === row.id ? setEditingId(null) : setEditingId(row.id)}
+                        >
+                          {t('common.edit')}
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(row.id)}
+                        >
+                          {t('common.delete')}
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
         
         <div className="calculations">
           <div className="calculation-row">

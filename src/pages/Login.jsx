@@ -20,6 +20,9 @@ const Login = () => {
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('')
   const [registerContractStartDate, setRegisterContractStartDate] = useState(new Date().toISOString().split('T')[0])
   const [registerMonthlyBaseAmount, setRegisterMonthlyBaseAmount] = useState('6250')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+  const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false)
 
   useEffect(() => {
     // Redirect if already authenticated
@@ -37,6 +40,8 @@ const Login = () => {
     
     if (result.success) {
       initializeData()
+      // Scroll to top before navigation
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
       navigate('/')
     } else {
       setError(t('login.error'))
@@ -83,6 +88,8 @@ const Login = () => {
     
     if (result.success) {
       initializeData()
+      // Scroll to top before navigation
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
       navigate('/')
     } else {
       setError(result.error || t('login.registerError', 'Registration failed'))
@@ -117,14 +124,34 @@ const Login = () => {
               
               <div className="form-group">
                 <label htmlFor="password">{t('login.password')}</label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               {error && <div className="error-message">{error}</div>}
@@ -182,26 +209,66 @@ const Login = () => {
               
               <div className="form-group">
                 <label htmlFor="registerPassword">{t('login.password')}</label>
-                <input
-                  id="registerPassword"
-                  type="password"
-                  value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    id="registerPassword"
+                    type={showRegisterPassword ? "text" : "password"}
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+                  >
+                    {showRegisterPassword ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               <div className="form-group">
                 <label htmlFor="registerConfirmPassword">{t('login.confirmPassword')}</label>
-                <input
-                  id="registerConfirmPassword"
-                  type="password"
-                  value={registerConfirmPassword}
-                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    id="registerConfirmPassword"
+                    type={showRegisterConfirmPassword ? "text" : "password"}
+                    value={registerConfirmPassword}
+                    onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowRegisterConfirmPassword(!showRegisterConfirmPassword)}
+                    aria-label={showRegisterConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showRegisterConfirmPassword ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               <div className="form-group">
@@ -251,6 +318,8 @@ const Login = () => {
                     setRegisterConfirmPassword('')
                     setRegisterContractStartDate(new Date().toISOString().split('T')[0])
                     setRegisterMonthlyBaseAmount('6250')
+                    setShowRegisterPassword(false)
+                    setShowRegisterConfirmPassword(false)
                   }}
                 >
                   {t('login.loginButton')}

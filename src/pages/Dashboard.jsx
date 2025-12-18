@@ -193,6 +193,11 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
+    // Scroll to top when dashboard loads
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
     loadTasks()
     loadCalendarEvents()
     // Refresh tasks when window gains focus (user returns to tab)

@@ -12,6 +12,7 @@ import CaretakerPayslips from './pages/CaretakerPayslips'
 import CaretakerWorklog from './pages/CaretakerWorklog'
 import Settings from './pages/Settings'
 import Layout from './components/Layout'
+import ScrollToTop from './components/ScrollToTop'
 import './App.css'
 
 const PrivateRoute = ({ children }) => {
@@ -39,6 +40,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route

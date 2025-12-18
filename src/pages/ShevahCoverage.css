@@ -37,6 +37,18 @@
   background-color: #2980b9;
 }
 
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--ios-label-secondary, #8e8e93);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
 .rows-table {
   overflow-x: auto;
   margin-bottom: 2rem;
