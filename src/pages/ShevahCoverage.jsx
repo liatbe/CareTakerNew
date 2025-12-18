@@ -51,10 +51,12 @@ const ShevahCoverage = () => {
   const handleAddRow = () => {
     const newRow = {
       id: Date.now(),
-      hours: 12.5,
-      amountPerHour: 44
+      hours: 0,
+      amountPerHour: 0
     }
     saveRows([...rows, newRow])
+    // Automatically start editing the new row
+    setEditingId(newRow.id)
   }
 
   const handleSaveEdit = (id, hours, amountPerHour) => {
