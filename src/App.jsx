@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { isAuthenticated } from './utils/auth'
-import { initializeData } from './utils/storage'
+import { initializeData, storage } from './utils/storage'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ElderFinancials from './pages/ElderFinancials'
@@ -32,8 +32,31 @@ function App() {
   }, [i18n.language])
 
   useEffect(() => {
+    // Expose storage test function globally for debugging
+    if (typeof window !== 'undefined') {
+      window.testStorage = () => {
+        const result = storage.test()
+        console.log('Storage Test Result:', result)
+        if (!result.available) {
+          alert(`Storage test failed: ${result.error}\n\nPlease check:\n1. Browser settings allow localStorage\n2. Not in private/incognito mode\n3. Storage quota not exceeded`)
+        } else {
+          alert(`Storage is working! Family ID: ${result.familyId}`)
+        }
+        return result
+      }
+    }
+
     // Initialize data structure when app loads
     if (isAuthenticated()) {
+      // Test storage before initializing
+      const storageTest = storage.test()
+      if (!storageTest.available) {
+        console.error('Storage is not available:', storageTest.error)
+        // Show a warning but don't block the app
+        if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+          console.warn('⚠️ localStorage may not be working. Data may not be saved.')
+        }
+      }
       initializeData()
     }
   }, [])
