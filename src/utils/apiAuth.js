@@ -2,6 +2,7 @@
 // This replaces localStorage-based auth
 
 import api from './api.js'
+import { storage } from './storage.js'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
@@ -118,10 +119,9 @@ export const register = async (username, password, name, contractStartDate, mont
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
     
-    const storageKey = `caretaker_${familyId}_contractStartDate`
-    localStorage.setItem(storageKey, JSON.stringify(contractStartDate))
-    const monthlyBaseKey = `caretaker_${familyId}_monthlyBaseAmount`
-    localStorage.setItem(monthlyBaseKey, JSON.stringify(monthlyBaseAmount))
+    // Save contract data using storage utility (for consistency and proper key formatting)
+    storage.set('contractStartDate', contractStartDate)
+    storage.set('monthlyBaseAmount', monthlyBaseAmount)
     
     return { success: true, user: authData }
   }
@@ -178,9 +178,10 @@ export const register = async (username, password, name, contractStartDate, mont
     const createdUser = await response.json()
     const user = Array.isArray(createdUser) ? createdUser[0] : createdUser
 
-    // Save contract data to backend
-    await api.set('contractStartDate', contractStartDate)
-    await api.set('monthlyBaseAmount', monthlyBaseAmount)
+    // Save contract data using storage (saves to localStorage immediately, syncs to backend in background)
+    // This ensures Settings page can read the values right away
+    storage.set('contractStartDate', contractStartDate)
+    storage.set('monthlyBaseAmount', monthlyBaseAmount)
 
     // Auto-login after registration
     const authData = {
