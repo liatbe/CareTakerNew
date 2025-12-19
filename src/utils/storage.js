@@ -1,6 +1,9 @@
 // Data storage utilities using localStorage
 // In production, this should use a proper backend API
 
+// Enable debug logging (set to false to disable)
+const DEBUG_STORAGE = true
+
 // Check if localStorage is available
 const isLocalStorageAvailable = () => {
   try {
@@ -45,9 +48,16 @@ export const storage = {
       const storageKey = getStorageKey(key)
       const data = localStorage.getItem(storageKey)
       if (data === null) {
+        if (DEBUG_STORAGE) {
+          console.log(`📖 [Storage GET] ${key} → default value (not found)`)
+        }
         return defaultValue
       }
-      return JSON.parse(data)
+      const parsed = JSON.parse(data)
+      if (DEBUG_STORAGE) {
+        console.log(`📖 [Storage GET] ${key} →`, parsed)
+      }
+      return parsed
     } catch (e) {
       console.error(`Error reading storage key "${key}":`, e)
       return defaultValue
@@ -70,6 +80,9 @@ export const storage = {
         console.error(`Storage verification failed for key: ${storageKey}`)
         return false
       }
+      if (DEBUG_STORAGE) {
+        console.log(`💾 [Storage SET] ${key} →`, value)
+      }
       return true
     } catch (e) {
       if (e.name === 'QuotaExceededError') {
@@ -90,6 +103,9 @@ export const storage = {
     try {
       const storageKey = getStorageKey(key)
       localStorage.removeItem(storageKey)
+      if (DEBUG_STORAGE) {
+        console.log(`🗑️  [Storage REMOVE] ${key}`)
+      }
       return true
     } catch (e) {
       console.error(`Error removing storage key "${key}":`, e)
@@ -115,6 +131,30 @@ export const storage = {
       console.error('Error clearing storage:', e)
       return false
     }
+  },
+  
+  // View all stored data for current family
+  viewAll: () => {
+    if (!isLocalStorageAvailable()) {
+      return { error: 'localStorage not available' }
+    }
+    
+    const familyId = getFamilyId()
+    const keys = Object.keys(localStorage)
+    const familyKeys = keys.filter(key => key.startsWith(`caretaker_${familyId}_`))
+    
+    const data = {}
+    familyKeys.forEach(key => {
+      const shortKey = key.replace(`caretaker_${familyId}_`, '')
+      try {
+        data[shortKey] = JSON.parse(localStorage.getItem(key))
+      } catch (e) {
+        data[shortKey] = localStorage.getItem(key)
+      }
+    })
+    
+    console.log(`📦 [Storage] All data for family "${familyId}":`, data)
+    return { familyId, data, keys: familyKeys }
   },
   
   // Diagnostic function to test storage

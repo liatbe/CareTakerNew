@@ -32,7 +32,7 @@ function App() {
   }, [i18n.language])
 
   useEffect(() => {
-    // Expose storage test function globally for debugging
+    // Expose storage debugging functions globally
     if (typeof window !== 'undefined') {
       window.testStorage = () => {
         const result = storage.test()
@@ -44,6 +44,14 @@ function App() {
         }
         return result
       }
+      
+      window.viewStorage = () => {
+        return storage.viewAll()
+      }
+      
+      console.log('💡 Debug helpers available:')
+      console.log('  - testStorage() - Test if localStorage is working')
+      console.log('  - viewStorage() - View all stored data for current family')
     }
 
     // Initialize data structure when app loads
