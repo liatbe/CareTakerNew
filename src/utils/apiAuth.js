@@ -189,7 +189,7 @@ export const register = async (username, password, name, contractStartDate, mont
     
     // Save contract data and family name using storage utility
     storage.set('contractStartDate', contractStartDate)
-    storage.set('monthlyBaseAmount', monthlyBaseAmount)
+    storage.set('monthlyBaseAmount', parseFloat(monthlyBaseAmount) || 0) // Ensure it's saved as a number
     storage.set('familyName', name) // Store family name
     
     return { success: true, user: authData }
@@ -264,7 +264,7 @@ export const register = async (username, password, name, contractStartDate, mont
     // This ensures Settings page can read the values right away
     // NOTE: Must be called AFTER authData is set so getFamilyId() works correctly
     storage.set('contractStartDate', contractStartDate)
-    storage.set('monthlyBaseAmount', monthlyBaseAmount)
+    storage.set('monthlyBaseAmount', parseFloat(monthlyBaseAmount) || 0) // Ensure it's saved as a number
     storage.set('familyName', name) // Store family name
 
     return { success: true, user: authData }
