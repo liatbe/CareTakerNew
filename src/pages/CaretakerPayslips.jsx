@@ -90,6 +90,13 @@ const CaretakerPayslips = () => {
     return monthShevah.reduce((sum, r) => sum + (r.hours * r.amountPerHour), 0)
   }
 
+  // Check if there are any Shevah entries for current month
+  const hasShevahEntries = () => {
+    const shevahData = storage.get('shevahCoverage', {})
+    const monthShevah = shevahData[currentMonthKey] || []
+    return monthShevah.length > 0
+  }
+
   // Get monthly one-time payments from worklog
   const getMonthlyOneTimePayments = () => {
     const worklog = storage.get('worklog', {})
@@ -361,10 +368,12 @@ const CaretakerPayslips = () => {
               <div className="payslip-label">{t('caretakerPayslips.baseAmount')}</div>
               <div className="payslip-value">{baseAmount.toFixed(2)} ₪</div>
             </div>
-            <div className="payslip-row">
-              <div className="payslip-label">{t('caretakerPayslips.paidByShevah')}</div>
-              <div className="payslip-value">{shevahTotal.toFixed(2)} ₪</div>
-            </div>
+            {hasShevahEntries() && (
+              <div className="payslip-row">
+                <div className="payslip-label">{t('caretakerPayslips.paidByShevah')}</div>
+                <div className="payslip-value">{shevahTotal.toFixed(2)} ₪</div>
+              </div>
+            )}
             <div className="payslip-row">
               <div className="payslip-label">{t('caretakerPayslips.remainingBaseAmount')}</div>
               <div className="payslip-value">{remainingBase.toFixed(2)} ₪</div>
