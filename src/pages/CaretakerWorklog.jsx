@@ -6,14 +6,14 @@ import { getMonthKey, formatDate, parseISO, isSameDay, isWithinInterval, getYear
 import { logAction } from '../utils/actionLogger'
 import './CaretakerWorklog.css'
 
-// Activity type colors (matching Calendar component)
+// Activity type colors (matching Calendar component) - Pastel colors
 const activityColors = {
-  vacationDay: '#34C759',      // Green
-  sickDay: '#FF9500',          // Orange
-  shabbat: '#007AFF',          // Blue
-  pocketMoney: '#FFCC00',      // Yellow
-  hospitalVisit: '#FF3B30',    // Red
-  holidayVacation: '#AF52DE'   // Purple
+  vacationDay: '#A8E6CF',      // Pastel Green
+  sickDay: '#FFD3A5',          // Pastel Orange
+  shabbat: '#A8C8EC',          // Pastel Blue
+  pocketMoney: '#FFEAA7',      // Pastel Yellow
+  hospitalVisit: '#FFB3BA',    // Pastel Red
+  holidayVacation: '#D4A5E6'   // Pastel Purple
 }
 
 const CaretakerWorklog = () => {
@@ -214,16 +214,23 @@ const CaretakerWorklog = () => {
             <div className="add-activity-form">
               <div className="form-group">
                 <label>{t('caretakerWorklog.activityType')}</label>
-                <select
-                  value={newActivity.type}
-                  onChange={(e) => setNewActivity({ ...newActivity, type: e.target.value })}
-                >
+                <div className="activity-type-selector">
                   {activityTypes.map(type => (
-                    <option key={type.value} value={type.value}>
+                    <button
+                      key={type.value}
+                      type="button"
+                      className={`activity-type-button ${newActivity.type === type.value ? 'selected' : ''}`}
+                      style={{
+                        backgroundColor: activityColors[type.value],
+                        borderColor: newActivity.type === type.value ? '#000' : 'transparent',
+                        borderWidth: newActivity.type === type.value ? '2px' : '1px'
+                      }}
+                      onClick={() => setNewActivity({ ...newActivity, type: type.value })}
+                    >
                       {type.label}
-                    </option>
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
               <div className="form-group">
                 <label>{t('common.date')}</label>

@@ -3,14 +3,14 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { useTranslation } from 'react-i18next'
 import './Calendar.css'
 
-// Activity type colors
+// Activity type colors - Pastel colors
 const activityColors = {
-  vacationDay: '#34C759',      // Green
-  sickDay: '#FF9500',          // Orange
-  shabbat: '#007AFF',          // Blue
-  pocketMoney: '#FFCC00',      // Yellow
-  hospitalVisit: '#FF3B30',    // Red
-  holidayVacation: '#AF52DE'   // Purple
+  vacationDay: '#A8E6CF',      // Pastel Green
+  sickDay: '#FFD3A5',          // Pastel Orange
+  shabbat: '#A8C8EC',          // Pastel Blue
+  pocketMoney: '#FFEAA7',      // Pastel Yellow
+  hospitalVisit: '#FFB3BA',    // Pastel Red
+  holidayVacation: '#D4A5E6'   // Pastel Purple
 }
 
 const Calendar = ({ selectedDate, onDateSelect, events = [], onAddActivity, onDeleteActivity, showAddActivity = false }) => {
@@ -209,16 +209,23 @@ const Calendar = ({ selectedDate, onDateSelect, events = [], onAddActivity, onDe
             
             <div className="modal-form-group">
               <label>{t('caretakerWorklog.activityType', 'Activity Type')}</label>
-              <select
-                value={newActivityType}
-                onChange={(e) => setNewActivityType(e.target.value)}
-              >
+              <div className="activity-type-selector">
                 {activityTypes.map(type => (
-                  <option key={type.value} value={type.value}>
+                  <button
+                    key={type.value}
+                    type="button"
+                    className={`activity-type-button ${newActivityType === type.value ? 'selected' : ''}`}
+                    style={{
+                      backgroundColor: activityColors[type.value],
+                      borderColor: newActivityType === type.value ? '#000' : 'transparent',
+                      borderWidth: newActivityType === type.value ? '2px' : '1px'
+                    }}
+                    onClick={() => setNewActivityType(type.value)}
+                  >
                     {type.label}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
             <div className="modal-actions">
               <button className="modal-button cancel" onClick={() => {
