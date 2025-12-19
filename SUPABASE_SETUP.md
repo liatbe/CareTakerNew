@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
   name TEXT,
-  family_id TEXT UNIQUE NOT NULL,
+  family_id TEXT NOT NULL,
   contract_start_date DATE,
   monthly_base_amount DECIMAL(10, 2),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
