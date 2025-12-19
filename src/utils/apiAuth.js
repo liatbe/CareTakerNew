@@ -248,13 +248,7 @@ export const register = async (username, password, name, contractStartDate, mont
     const createdUser = await response.json()
     const user = Array.isArray(createdUser) ? createdUser[0] : createdUser
 
-    // Save contract data and family name using storage (saves to localStorage immediately, syncs to backend in background)
-    // This ensures Settings page can read the values right away
-    storage.set('contractStartDate', contractStartDate)
-    storage.set('monthlyBaseAmount', monthlyBaseAmount)
-    storage.set('familyName', name) // Store family name
-
-    // Auto-login after registration
+    // Auto-login after registration - set authData FIRST so storage.set() can get the familyId
     const authData = {
       username: user.username,
       familyId: user.family_id,
@@ -265,6 +259,14 @@ export const register = async (username, password, name, contractStartDate, mont
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
+
+    // Save contract data and family name using storage (saves to localStorage immediately, syncs to backend in background)
+    // This ensures Settings page can read the values right away
+    // NOTE: Must be called AFTER authData is set so getFamilyId() works correctly
+    storage.set('contractStartDate', contractStartDate)
+    storage.set('monthlyBaseAmount', monthlyBaseAmount)
+    storage.set('familyName', name) // Store family name
+
     return { success: true, user: authData }
   } catch (error) {
     console.error('Registration error:', error)
