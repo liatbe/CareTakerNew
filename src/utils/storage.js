@@ -1,5 +1,9 @@
-// Data storage utilities using localStorage
-// In production, this should use a proper backend API
+// Data storage utilities
+// Uses backend API (Supabase) if configured, otherwise falls back to localStorage
+// This allows data to be accessible across devices when backend is configured
+// Works synchronously for backward compatibility, syncs to backend in background
+
+import api from './api.js'
 
 // Enable debug logging (set to false to disable)
 const DEBUG_STORAGE = true
@@ -37,7 +41,32 @@ const getFamilyId = () => {
   }
 }
 
+// Background sync queue
+const syncQueue = []
+let isSyncing = false
+
+const syncToBackend = async () => {
+  if (isSyncing || syncQueue.length === 0) return
+  isSyncing = true
+  
+  while (syncQueue.length > 0) {
+    const { operation, key, value } = syncQueue.shift()
+    try {
+      if (operation === 'set') {
+        await api.set(key, value)
+      } else if (operation === 'remove') {
+        await api.remove(key)
+      }
+    } catch (error) {
+      console.warn(`Background sync failed for ${key}:`, error)
+    }
+  }
+  
+  isSyncing = false
+}
+
 export const storage = {
+  // Synchronous GET - reads from localStorage immediately, syncs from backend in background
   get: (key, defaultValue = null) => {
     if (!isLocalStorageAvailable()) {
       console.warn('localStorage not available, returning default value')
@@ -48,6 +77,16 @@ export const storage = {
       const storageKey = getStorageKey(key)
       const data = localStorage.getItem(storageKey)
       if (data === null) {
+        // Try to load from backend in background
+        api.get(key).then(backendData => {
+          if (backendData !== null) {
+            localStorage.setItem(storageKey, JSON.stringify(backendData))
+            if (DEBUG_STORAGE) {
+              console.log(`📖 [Storage GET - API sync] ${key} →`, backendData)
+            }
+          }
+        }).catch(() => {})
+        
         if (DEBUG_STORAGE) {
           console.log(`📖 [Storage GET] ${key} → default value (not found)`)
         }
@@ -64,6 +103,7 @@ export const storage = {
     }
   },
   
+  // Synchronous SET - saves to localStorage immediately, syncs to backend in background
   set: (key, value) => {
     if (!isLocalStorageAvailable()) {
       console.error('localStorage not available, cannot save data')
@@ -83,6 +123,11 @@ export const storage = {
       if (DEBUG_STORAGE) {
         console.log(`💾 [Storage SET] ${key} →`, value)
       }
+      
+      // Queue for background sync to backend
+      syncQueue.push({ operation: 'set', key, value })
+      syncToBackend()
+      
       return true
     } catch (e) {
       if (e.name === 'QuotaExceededError') {
@@ -95,6 +140,7 @@ export const storage = {
     }
   },
   
+  // Synchronous REMOVE - removes from localStorage immediately, syncs to backend in background
   remove: (key) => {
     if (!isLocalStorageAvailable()) {
       return false
@@ -106,6 +152,11 @@ export const storage = {
       if (DEBUG_STORAGE) {
         console.log(`🗑️  [Storage REMOVE] ${key}`)
       }
+      
+      // Queue for background sync to backend
+      syncQueue.push({ operation: 'remove', key })
+      syncToBackend()
+      
       return true
     } catch (e) {
       console.error(`Error removing storage key "${key}":`, e)
@@ -113,6 +164,7 @@ export const storage = {
     }
   },
   
+  // Synchronous CLEAR - clears localStorage immediately, syncs to backend in background
   clear: () => {
     if (!isLocalStorageAvailable()) {
       return false
@@ -126,6 +178,10 @@ export const storage = {
           localStorage.removeItem(key)
         }
       })
+      
+      // Sync clear to backend
+      api.clear().catch(() => {})
+      
       return true
     } catch (e) {
       console.error('Error clearing storage:', e)
@@ -189,11 +245,13 @@ export const storage = {
       localStorage.removeItem(testKey)
       
       // Test family-scoped storage
-      const familyTestResult = storage.set('__family_test__', { test: true })
-      if (!familyTestResult) {
+      const storageKey = getStorageKey('__family_test__')
+      localStorage.setItem(storageKey, JSON.stringify({ test: true }))
+      const verify = localStorage.getItem(storageKey)
+      if (!verify) {
         return { available: false, error: 'Family-scoped storage failed' }
       }
-      storage.remove('__family_test__')
+      localStorage.removeItem(storageKey)
       
       return { available: true, familyId: getFamilyId() }
     } catch (e) {
@@ -233,4 +291,3 @@ export const initializeData = () => {
     })
   }
 }
-

@@ -36,18 +36,23 @@ const Login = () => {
     setError('')
     setLoading(true)
 
-    const result = login(username, password)
-    
-    if (result.success) {
-      initializeData()
-      // Scroll to top before navigation
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      navigate('/')
-    } else {
+    try {
+      const result = await login(username, password)
+      
+      if (result.success) {
+        initializeData()
+        // Scroll to top before navigation
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+        navigate('/')
+      } else {
+        setError(result.error || t('login.error'))
+      }
+    } catch (error) {
+      console.error('Login error:', error)
       setError(t('login.error'))
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   const handleRegister = async (e) => {
@@ -78,24 +83,29 @@ const Login = () => {
     
     setLoading(true)
     
-    const result = register(
-      registerUsername, 
-      registerPassword, 
-      registerName,
-      registerContractStartDate,
-      monthlyAmount
-    )
-    
-    if (result.success) {
-      initializeData()
-      // Scroll to top before navigation
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      navigate('/')
-    } else {
-      setError(result.error || t('login.registerError', 'Registration failed'))
+    try {
+      const result = await register(
+        registerUsername, 
+        registerPassword, 
+        registerName,
+        registerContractStartDate,
+        monthlyAmount
+      )
+      
+      if (result.success) {
+        initializeData()
+        // Scroll to top before navigation
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+        navigate('/')
+      } else {
+        setError(result.error || t('login.registerError', 'Registration failed'))
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      setError(t('login.registerError', 'Registration failed'))
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   return (
