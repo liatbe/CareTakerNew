@@ -24,6 +24,29 @@ if (FALLBACK_TO_LOCALSTORAGE && !localStorage.getItem(USERS_KEY)) {
   localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers))
 }
 
+// Migrate existing users to have roles (run once)
+if (typeof window !== 'undefined' && localStorage.getItem(USERS_KEY)) {
+  try {
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+    let updated = false
+    users.forEach(user => {
+      if (!user.role) {
+        user.role = 'admin' // Default existing users to admin
+        updated = true
+      }
+      if (!user.id) {
+        user.id = user.username || Date.now().toString()
+        updated = true
+      }
+    })
+    if (updated) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users))
+    }
+  } catch (e) {
+    console.error('Error migrating users:', e)
+  }
+}
+
 export const login = async (username, password) => {
   if (FALLBACK_TO_LOCALSTORAGE) {
     // Fallback to localStorage
@@ -45,7 +68,7 @@ export const login = async (username, password) => {
     return { success: false, error: 'Invalid credentials' }
   }
 
-  // Backend authentication
+  // Backend authentication - try Supabase first, fallback to localStorage
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`, {
       method: 'GET',
@@ -56,36 +79,77 @@ export const login = async (username, password) => {
       }
     })
 
-    if (!response.ok) {
-      throw new Error(`Login failed: ${response.status}`)
-    }
+    if (response.ok) {
+      const users = await response.json()
+      if (users && users.length > 0) {
+        const user = users[0]
+        
+        // In production, passwords should be hashed. For now, we'll do a simple comparison
+        // TODO: Implement proper password hashing (bcrypt) on the backend
+        if (user.password === password) {
+          const authData = {
+            username: user.username,
+            familyId: user.family_id,
+            role: user.role || 'admin', // Get role from user
+            loggedIn: true,
+            timestamp: Date.now(),
+            token: user.id // Using user ID as token for now
+          }
 
-    const users = await response.json()
-    if (!users || users.length === 0) {
-      return { success: false, error: 'Invalid credentials' }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
+          return { success: true, user: authData }
+        }
+      }
     }
-
-    const user = users[0]
     
-    // In production, passwords should be hashed. For now, we'll do a simple comparison
-    // TODO: Implement proper password hashing (bcrypt) on the backend
-    if (user.password !== password) {
-      return { success: false, error: 'Invalid credentials' }
+    // If Supabase user not found or password wrong, try localStorage fallback
+    console.log('User not found in Supabase, trying localStorage fallback...')
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+    const user = users.find(u => u.username === username && u.password === password)
+    
+    if (user) {
+      // Update existing localStorage user to have role if missing
+      if (!user.role) {
+        user.role = 'admin'
+        localStorage.setItem(USERS_KEY, JSON.stringify(users))
+      }
+      
+      const authData = {
+        username: user.username,
+        familyId: user.familyId,
+        role: user.role || 'admin',
+        loggedIn: true,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
+      return { success: true, user: authData }
     }
-
-    const authData = {
-      username: user.username,
-      familyId: user.family_id,
-      role: user.role || 'admin', // Get role from user
-      loggedIn: true,
-      timestamp: Date.now(),
-      token: user.id // Using user ID as token for now
-    }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
-    return { success: true, user: authData }
+    
+    return { success: false, error: 'Invalid credentials' }
   } catch (error) {
     console.error('Login error:', error)
+    // On error, try localStorage fallback
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+    const user = users.find(u => u.username === username && u.password === password)
+    
+    if (user) {
+      // Update existing localStorage user to have role if missing
+      if (!user.role) {
+        user.role = 'admin'
+        localStorage.setItem(USERS_KEY, JSON.stringify(users))
+      }
+      
+      const authData = {
+        username: user.username,
+        familyId: user.familyId,
+        role: user.role || 'admin',
+        loggedIn: true,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
+      return { success: true, user: authData }
+    }
+    
     return { success: false, error: 'Login failed. Please try again.' }
   }
 }
