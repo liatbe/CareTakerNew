@@ -16,9 +16,22 @@ const Layout = () => {
 
   useEffect(() => {
     // Load family name from storage
-    const name = storage.get('familyName', '')
-    setFamilyName(name)
-  }, [])
+    // Reload on location change to catch updates after registration
+    const loadFamilyName = () => {
+      const name = storage.get('familyName', '')
+      if (name) {
+        setFamilyName(name)
+      }
+    }
+    
+    // Load immediately
+    loadFamilyName()
+    
+    // Also check after a short delay in case it was just saved
+    const timeoutId = setTimeout(loadFamilyName, 100)
+    
+    return () => clearTimeout(timeoutId)
+  }, [location])
 
   const handleLogout = () => {
     logout()
