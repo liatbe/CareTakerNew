@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Calendar from '../components/Calendar'
 import { storage } from '../utils/storage'
 import { getMonthKey, formatDate, parseISO, isSameDay, isWithinInterval, getYearFromDate } from '../utils/dateUtils'
+import { logAction } from '../utils/actionLogger'
 import './CaretakerWorklog.css'
 
 // Activity type colors (matching Calendar component)
@@ -64,6 +65,14 @@ const CaretakerWorklog = () => {
     
     worklog[monthKey].push(newActivity)
     storage.set('worklog', worklog)
+    
+    // Log action for caretakers
+    logAction('add_activity', {
+      activityType: activity.type,
+      date: activity.date,
+      activityId: newActivity.id
+    })
+    
     loadActivities()
     // Force calendar refresh by updating selected date
     setSelectedDate(new Date(selectedDate))
@@ -83,10 +92,26 @@ const CaretakerWorklog = () => {
   const handleDeleteActivity = (id) => {
     if (window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this activity?'))) {
       const worklog = storage.get('worklog', {})
+      let deletedActivity = null
       Object.keys(worklog).forEach(monthKey => {
+        const activity = worklog[monthKey].find(a => a.id === id)
+        if (activity) {
+          deletedActivity = activity
+        }
         worklog[monthKey] = worklog[monthKey].filter(a => a.id !== id)
       })
+      
       storage.set('worklog', worklog)
+      
+      // Log action for caretakers
+      if (deletedActivity) {
+        logAction('delete_activity', {
+          activityType: deletedActivity.type,
+          date: deletedActivity.date,
+          activityId: id
+        })
+      }
+      
       loadActivities()
     }
   }

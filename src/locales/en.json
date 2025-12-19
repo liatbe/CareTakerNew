@@ -55,6 +55,7 @@
     "caretakerWorklog": "CareTaker Worklog",
     "settings": "Settings",
     "userManagement": "User Management",
+    "actionLog": "Action Log",
     "logout": "Logout"
   },
   "dashboard": {
@@ -197,6 +198,19 @@
     "loadError": "Failed to load users",
     "confirmDelete": "Are you sure you want to delete user \"{{username}}\"?",
     "noUsers": "No users found"
+  },
+  "actionLog": {
+    "title": "Action Log",
+    "subtitle": "View actions performed by users",
+    "familyActions": "Family Actions",
+    "filterByRole": "Filter by role",
+    "allRoles": "All Roles",
+    "dateTime": "Date & Time",
+    "action": "Action",
+    "details": "Details",
+    "addActivity": "Added activity",
+    "deleteActivity": "Deleted activity",
+    "noActions": "No actions found"
   }
 }
 

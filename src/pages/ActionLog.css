@@ -1,0 +1,77 @@
+.action-log {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.filter-controls label {
+  font-weight: 500;
+  color: var(--ios-label);
+}
+
+.filter-controls select {
+  padding: 0.5rem 1rem;
+  border: 0.5px solid var(--ios-separator);
+  border-radius: var(--border-radius);
+  font-size: 15px;
+  background-color: var(--ios-background);
+  color: var(--ios-label);
+}
+
+.actions-list {
+  margin-top: var(--spacing-lg);
+}
+
+.actions-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.actions-list th,
+.actions-list td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.actions-list th {
+  font-weight: 600;
+  color: var(--ios-label);
+  background-color: var(--ios-gray-1);
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.role-admin {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--ios-green);
+}
+
+.role-caretaker {
+  background-color: rgba(0, 122, 255, 0.1);
+  color: var(--ios-blue);
+}
+
+@media (max-width: 768px) {
+  .actions-list table {
+    font-size: 14px;
+  }
+  
+  .actions-list th,
+  .actions-list td {
+    padding: var(--spacing-sm);
+  }
+}
+

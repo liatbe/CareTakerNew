@@ -12,9 +12,10 @@ import CaretakerPayslips from './pages/CaretakerPayslips'
 import CaretakerWorklog from './pages/CaretakerWorklog'
 import Settings from './pages/Settings'
 import UserManagement from './pages/UserManagement'
+import ActionLog from './pages/ActionLog'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
-import { isAdmin } from './utils/auth'
+import { isAdmin, getUserRole } from './utils/auth'
 import './App.css'
 
 const PrivateRoute = ({ children }) => {
@@ -26,7 +27,8 @@ const PrivateAdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />
   }
   if (!isAdmin()) {
-    return <Navigate to="/" replace />
+    // Redirect caretakers to worklog instead of dashboard
+    return <Navigate to="/caretaker-worklog" replace />
   }
   return children
 }
@@ -102,6 +104,7 @@ function App() {
           <Route path="caretaker-worklog" element={<CaretakerWorklog />} />
           <Route path="settings" element={<PrivateAdminRoute><Settings /></PrivateAdminRoute>} />
           <Route path="user-management" element={<PrivateAdminRoute><UserManagement /></PrivateAdminRoute>} />
+          <Route path="action-log" element={<PrivateAdminRoute><ActionLog /></PrivateAdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

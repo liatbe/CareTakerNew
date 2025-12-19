@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { login, isAuthenticated, register } from '../utils/auth'
+import { login, isAuthenticated, register, getUserRole } from '../utils/auth'
 import { initializeData } from '../utils/storage'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import './Login.css'
@@ -27,7 +27,12 @@ const Login = () => {
   useEffect(() => {
     // Redirect if already authenticated
     if (isAuthenticated()) {
-      navigate('/')
+      const userRole = getUserRole()
+      if (userRole === 'caretaker') {
+        navigate('/caretaker-worklog')
+      } else {
+        navigate('/')
+      }
     }
   }, [navigate])
 
@@ -49,7 +54,13 @@ const Login = () => {
         initializeData()
         // Scroll to top before navigation
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-        navigate('/')
+        // Redirect caretakers to worklog, admins to dashboard
+        const userRole = result.user?.role || getUserRole()
+        if (userRole === 'caretaker') {
+          navigate('/caretaker-worklog')
+        } else {
+          navigate('/')
+        }
       } else {
         setError(result.error || t('login.error'))
       }
@@ -113,7 +124,13 @@ const Login = () => {
         initializeData()
         // Scroll to top before navigation
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-        navigate('/')
+        // Redirect caretakers to worklog, admins to dashboard
+        const userRole = result.user?.role || getUserRole()
+        if (userRole === 'caretaker') {
+          navigate('/caretaker-worklog')
+        } else {
+          navigate('/')
+        }
       } else {
         setError(result.error || t('login.registerError', 'Registration failed'))
       }

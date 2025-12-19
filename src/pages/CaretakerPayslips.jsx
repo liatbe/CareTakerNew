@@ -4,9 +4,11 @@ import MonthSelector from '../components/MonthSelector'
 import { storage } from '../utils/storage'
 import { getMonthKey, getYearFromDate, getContractYear, getContractYearKey, getContractYears } from '../utils/dateUtils'
 import { exportToExcel } from '../utils/excelExport'
+import { isAdmin } from '../utils/auth'
 import './CaretakerPayslips.css'
 
 const CaretakerPayslips = () => {
+  const isReadOnly = !isAdmin() // Read-only for caretakers
   const { t } = useTranslation()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [contractStartDate, setContractStartDate] = useState('')
@@ -326,9 +328,11 @@ const CaretakerPayslips = () => {
       <div className="content-card">
         <div className="card-header">
           <h2>{t('caretakerPayslips.title')}</h2>
-          <button className="export-button" onClick={handleExport}>
-            {t('common.export')}
-          </button>
+          {!isReadOnly && (
+            <button className="export-button" onClick={handleExport}>
+              {t('common.export')}
+            </button>
+          )}
         </div>
         
         <div className="contract-info">
@@ -341,6 +345,7 @@ const CaretakerPayslips = () => {
                 setContractStartDate(e.target.value)
                 storage.set('contractStartDate', e.target.value)
               }}
+              disabled={isReadOnly}
             />
           </div>
           <div className="info-row">
@@ -352,9 +357,10 @@ const CaretakerPayslips = () => {
                 onChange={(e) => handleYearlyBaseAmountChange(currentYear, e.target.value)}
                 onBlur={() => setEditingYear(null)}
                 step="0.01"
+                disabled={isReadOnly}
               />
             ) : (
-              <span onClick={() => setEditingYear(currentYear)} style={{ cursor: 'pointer' }}>
+              <span onClick={() => !isReadOnly && setEditingYear(currentYear)} style={{ cursor: isReadOnly ? 'default' : 'pointer' }}>
                 {baseAmount.toFixed(2)} ₪
               </span>
             )}
@@ -407,6 +413,7 @@ const CaretakerPayslips = () => {
                 value={paymentStatus} 
                 onChange={(e) => handlePaymentStatusChange(e.target.value)}
                 className={`status-select status-${paymentStatus}`}
+                disabled={isReadOnly}
               >
                 <option value="paid">{t('common.paid')}</option>
                 <option value="pending">{t('common.pending')}</option>
@@ -424,6 +431,7 @@ const CaretakerPayslips = () => {
                     step="0.01"
                     min="0"
                     max={monthlyTotal}
+                    disabled={isReadOnly}
                   />
                   <span>₪</span>
                 </div>
@@ -454,6 +462,7 @@ const CaretakerPayslips = () => {
                         value={payment.paymentStatus} 
                         onChange={(e) => handleMonthlyPaymentStatusChange(payment.id, e.target.value)}
                         className={`status-select status-${payment.paymentStatus}`}
+                        disabled={isReadOnly}
                       >
                         <option value="paid">{t('common.paid')}</option>
                         <option value="pending">{t('common.pending')}</option>
@@ -471,6 +480,7 @@ const CaretakerPayslips = () => {
                             step="0.01"
                             min="0"
                             max={payment.amount}
+                            disabled={isReadOnly}
                           />
                           <span>₪</span>
                         </div>
@@ -506,6 +516,7 @@ const CaretakerPayslips = () => {
                   value={selectedContractYear} 
                   onChange={(e) => setSelectedContractYear(parseInt(e.target.value))}
                   className="year-select"
+                  disabled={isReadOnly}
                 >
                   {getContractYears(contractStartDate, true).map(year => {
                     const formatDate = (d) => {
@@ -535,6 +546,7 @@ const CaretakerPayslips = () => {
                       value={payment.paymentStatus} 
                       onChange={(e) => handleYearlyPaymentStatusChange(payment.key, e.target.value)}
                       className={`status-select status-${payment.paymentStatus}`}
+                      disabled={isReadOnly}
                     >
                       <option value="paid">{t('common.paid')}</option>
                       <option value="pending">{t('common.pending')}</option>
@@ -552,6 +564,7 @@ const CaretakerPayslips = () => {
                           step="0.01"
                           min="0"
                           max={payment.amount}
+                          disabled={isReadOnly}
                         />
                         <span>₪</span>
                       </div>

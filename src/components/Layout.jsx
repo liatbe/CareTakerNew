@@ -34,7 +34,8 @@ const Layout = () => {
     { path: '/elder-expenses', label: t('navigation.elderExpenses'), adminOnly: true },
     { path: '/shevah-coverage', label: t('navigation.shevahCoverage'), adminOnly: true },
     { path: '/settings', label: t('navigation.settings'), adminOnly: true },
-    { path: '/user-management', label: t('navigation.userManagement'), adminOnly: true }
+    { path: '/user-management', label: t('navigation.userManagement'), adminOnly: true },
+    { path: '/action-log', label: t('navigation.actionLog'), adminOnly: true }
   ]
 
   // Filter navigation items based on user role

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import Calendar from '../components/Calendar'
 import { storage } from '../utils/storage'
 import { getCurrentMonthKey, getContractYear, getContractYearKey, getMonthKey, formatDate, parseISO } from '../utils/dateUtils'
+import { getUserRole } from '../utils/auth'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -193,9 +194,15 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
+    // Redirect caretakers to worklog
+    const userRole = getUserRole()
+    if (userRole === 'caretaker') {
+      navigate('/caretaker-worklog', { replace: true })
+      return
+    }
     // Scroll to top when dashboard loads
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-  }, [])
+  }, [navigate])
 
   useEffect(() => {
     loadTasks()

@@ -54,6 +54,7 @@
     "caretakerWorklog": "יומן עבודה מטפל",
     "settings": "הגדרות",
     "userManagement": "ניהול משתמשים",
+    "actionLog": "יומן פעולות",
     "logout": "התנתק"
   },
   "dashboard": {
@@ -196,6 +197,19 @@
     "loadError": "נכשל בטעינת משתמשים",
     "confirmDelete": "האם אתה בטוח שברצונך למחוק את המשתמש \"{{username}}\"?",
     "noUsers": "לא נמצאו משתמשים"
+  },
+  "actionLog": {
+    "title": "יומן פעולות",
+    "subtitle": "צפה בפעולות שבוצעו על ידי משתמשים",
+    "familyActions": "פעולות המשפחה",
+    "filterByRole": "סנן לפי תפקיד",
+    "allRoles": "כל התפקידים",
+    "dateTime": "תאריך ושעה",
+    "action": "פעולה",
+    "details": "פרטים",
+    "addActivity": "הוספת פעילות",
+    "deleteActivity": "מחיקת פעילות",
+    "noActions": "לא נמצאו פעולות"
   }
 }
 
