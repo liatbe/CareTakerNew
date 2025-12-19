@@ -19,8 +19,8 @@ const Settings = () => {
   const [selectedContractYear, setSelectedContractYear] = useState(0)
   const [yearlyPayments, setYearlyPayments] = useState({
     medicalInsurance: 0,
-    taagidPayment: 0,
-    taagidHandling: 0
+    taagidPayment: 2000,
+    taagidHandling: 840
   })
   const [expectedExpenses, setExpectedExpenses] = useState(null)
   const [calculationParams, setCalculationParams] = useState({
@@ -60,8 +60,8 @@ const Settings = () => {
       const yearlyPaymentsData = storage.get('yearlyPayments', {})
       const yearly = yearlyPaymentsData[yearKey] || {
         medicalInsurance: 0,
-        taagidPayment: 0,
-        taagidHandling: 0
+        taagidPayment: 2000,
+        taagidHandling: 840
       }
       // Remove bituahLeumi if it exists (for backward compatibility)
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
@@ -69,8 +69,8 @@ const Settings = () => {
     } else {
       const yearly = storage.get('yearlyPayments', {
         medicalInsurance: 0,
-        taagidPayment: 0,
-        taagidHandling: 0
+        taagidPayment: 2000,
+        taagidHandling: 840
       })
       // Remove bituahLeumi if it exists
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
@@ -90,8 +90,8 @@ const Settings = () => {
       const yearlyPaymentsData = storage.get('yearlyPayments', {})
       const yearly = yearlyPaymentsData[yearKey] || {
         medicalInsurance: 0,
-        taagidPayment: 0,
-        taagidHandling: 0
+        taagidPayment: 2000,
+        taagidHandling: 840
       }
       // Remove bituahLeumi if it exists (for backward compatibility)
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
@@ -131,10 +131,10 @@ const Settings = () => {
     const yearKey = `year_${year}`
     const yearlyPaymentsData = storage.get('yearlyPayments', {})
     const yearly = yearlyPaymentsData[yearKey] || {
-      medicalInsurance: 0,
-      taagidPayment: 0,
-      taagidHandling: 0
-    }
+        medicalInsurance: 0,
+        taagidPayment: 2000,
+        taagidHandling: 840
+      }
     // Remove bituahLeumi if it exists (for backward compatibility)
     const { bituahLeumi, ...paymentsWithoutBituah } = yearly
     setYearlyPayments(paymentsWithoutBituah)
@@ -178,8 +178,8 @@ const Settings = () => {
     const yearlyPaymentsData = storage.get('yearlyPayments', {})
     const yearPayments = yearlyPaymentsData[yearKey] || {
       medicalInsurance: 0,
-      taagidPayment: 0,
-      taagidHandling: 0
+      taagidPayment: 2000,
+      taagidHandling: 840
     }
     // Remove bituahLeumi if it exists (it's now in monthly payslip, not yearly payments)
     const { bituahLeumi: _, ...paymentsWithoutBituah } = yearPayments

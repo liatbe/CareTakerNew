@@ -145,8 +145,8 @@ const CaretakerPayslips = () => {
     const yearlyPaymentsData = storage.get('yearlyPayments', {})
     const yearPayments = yearlyPaymentsData[yearKey] || {
       medicalInsurance: 0,
-      taagidPayment: 0,
-      taagidHandling: 0
+      taagidPayment: 2000,
+      taagidHandling: 840
     }
     
     // Remove bituahLeumi if it exists (for backward compatibility)

@@ -286,8 +286,8 @@ export const initializeData = () => {
   if (!yearlyPayments) {
     storage.set('yearlyPayments', {
       medicalInsurance: 0,
-      taagidPayment: 0,
-      taagidHandling: 0
+      taagidPayment: 2000,
+      taagidHandling: 840
     })
   }
 }
