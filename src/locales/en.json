@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "CareTaker Self Service",
+    "title": "CareTaker Management",
     "subtitle": "Documentation and Payslip Management",
     "username": "Username",
     "password": "Password",
@@ -18,7 +18,11 @@
     "passwordMismatch": "Passwords do not match",
     "passwordTooShort": "Password must be at least 4 characters",
     "invalidAmount": "Monthly base amount must be a valid positive number",
-    "registerError": "Registration failed"
+    "registerError": "Registration failed",
+    "usernameEnglishOnly": "Username must contain only English characters (letters, numbers, and symbols)",
+    "passwordEnglishOnly": "Password must contain only English characters (letters, numbers, and symbols)",
+    "usernameEnglishHint": "Username must be in English (letters, numbers, and symbols only)",
+    "passwordEnglishHint": "Password must be in English (letters, numbers, and symbols only)"
   },
   "common": {
     "save": "Save",

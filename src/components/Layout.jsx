@@ -16,11 +16,11 @@ const Layout = () => {
 
   const navItems = [
     { path: '/', label: t('navigation.dashboard') },
+    { path: '/caretaker-payslips', label: t('navigation.caretakerPayslips') },
+    { path: '/caretaker-worklog', label: t('navigation.caretakerWorklog') },
     { path: '/elder-financials', label: t('navigation.elderFinancials') },
     { path: '/elder-expenses', label: t('navigation.elderExpenses') },
     { path: '/shevah-coverage', label: t('navigation.shevahCoverage') },
-    { path: '/caretaker-payslips', label: t('navigation.caretakerPayslips') },
-    { path: '/caretaker-worklog', label: t('navigation.caretakerWorklog') },
     { path: '/settings', label: t('navigation.settings') }
   ]
 

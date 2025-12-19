@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "שירות עצמי למטפלים",
+    "title": "ניהול הוצאות העסקה",
     "subtitle": "תיעוד וניהול תלושי שכר",
     "username": "שם משתמש",
     "password": "סיסמה",
@@ -18,7 +18,11 @@
     "passwordMismatch": "הסיסמאות אינן תואמות",
     "passwordTooShort": "הסיסמה חייבת להכיל לפחות 4 תווים",
     "invalidAmount": "סכום בסיס חודשי חייב להיות מספר חיובי תקין",
-    "registerError": "ההרשמה נכשלה"
+    "registerError": "ההרשמה נכשלה",
+    "usernameEnglishOnly": "שם המשתמש חייב להכיל רק תווים באנגלית (אותיות, מספרים וסימנים)",
+    "passwordEnglishOnly": "הסיסמה חייבת להכיל רק תווים באנגלית (אותיות, מספרים וסימנים)",
+    "usernameEnglishHint": "שם המשתמש חייב להיות באנגלית (אותיות, מספרים וסימנים בלבד)",
+    "passwordEnglishHint": "הסיסמה חייבת להיות באנגלית (אותיות, מספרים וסימנים בלבד)"
   },
   "common": {
     "save": "שמור",
@@ -41,9 +45,9 @@
     "today": "היום"
   },
   "navigation": {
-    "dashboard": "לוח בקרה",
-    "elderFinancials": "כספים של הקשיש",
-    "elderExpenses": "הוצאות הקשיש",
+    "dashboard": "סיכום",
+    "elderFinancials": "כספים של המעסיק",
+    "elderExpenses": "הוצאות המעסיק",
     "shevahCoverage": "כיסוי שבח",
     "caretakerPayslips": "תלושי שכר מטפל",
     "caretakerWorklog": "יומן עבודה מטפל",
@@ -51,7 +55,7 @@
     "logout": "התנתק"
   },
   "dashboard": {
-    "title": "לוח בקרה",
+    "title": "סיכום",
     "calendar": "לוח שנה",
     "openTasks": "משימות פתוחות",
     "noTasks": "כרגע אין משימות נדרשות",
@@ -67,15 +71,15 @@
     "yearlyPaymentsMixed": "{{pending}} ממתין/ים, {{partial}} שולם/ו חלקית"
   },
   "elderFinancials": {
-    "title": "כספים של הקשיש",
-    "subtitle": "תשלומים חודשיים ששולמו לקשיש",
+    "title": "כספים של המעסיק",
+    "subtitle": "תשלומים חודשיים ששולמו למעסיק",
     "addEntry": "הוסף רשומה חדשה",
     "entryName": "שם הרשומה",
     "monthlyTotal": "סה\"כ חודשי"
   },
   "elderExpenses": {
-    "title": "הוצאות הקשיש",
-    "subtitle": "הוצאות חודשיות שהקשיש מבצע",
+    "title": "הוצאות המעסיק",
+    "subtitle": "הוצאות חודשיות שהמעסיק מבצע",
     "addEntry": "הוסף רשומה חדשה",
     "entryName": "שם הרשומה",
     "type": "סוג",

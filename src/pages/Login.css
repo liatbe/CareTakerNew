@@ -212,6 +212,14 @@
   box-shadow: none;
 }
 
+.form-hint {
+  display: block;
+  margin-top: var(--spacing-xs);
+  font-size: 13px;
+  color: var(--ios-label-secondary);
+  line-height: 1.4;
+}
+
 .error-message {
   background-color: rgba(255, 59, 48, 0.1);
   color: var(--ios-red);

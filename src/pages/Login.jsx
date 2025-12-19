@@ -31,6 +31,12 @@ const Login = () => {
     }
   }, [navigate])
 
+  // Validate that string contains only English characters (letters, numbers, and common symbols)
+  const isEnglishOnly = (str) => {
+    // Allow: letters (a-z, A-Z), numbers (0-9), and common symbols (!@#$%^&*()_+-=[]{}|;:,.<>?)
+    return /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{}|;:,.<>?]*$/.test(str)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -62,6 +68,17 @@ const Login = () => {
     // Validation
     if (!registerName || !registerUsername || !registerPassword || !registerContractStartDate || !registerMonthlyBaseAmount) {
       setError(t('login.registerRequired', 'All fields are required'))
+      return
+    }
+    
+    // Validate English-only characters
+    if (!isEnglishOnly(registerUsername)) {
+      setError(t('login.usernameEnglishOnly', 'Username must contain only English characters (letters, numbers, and symbols)'))
+      return
+    }
+    
+    if (!isEnglishOnly(registerPassword)) {
+      setError(t('login.passwordEnglishOnly', 'Password must contain only English characters (letters, numbers, and symbols)'))
       return
     }
     
@@ -130,6 +147,7 @@ const Login = () => {
                   required
                   autoComplete="username"
                 />
+                <small className="form-hint">{t('login.usernameEnglishHint', 'Username must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               <div className="form-group">
@@ -162,6 +180,7 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+                <small className="form-hint">{t('login.passwordEnglishHint', 'Password must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               {error && <div className="error-message">{error}</div>}
@@ -215,6 +234,7 @@ const Login = () => {
                   required
                   autoComplete="username"
                 />
+                <small className="form-hint">{t('login.usernameEnglishHint', 'Username must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               <div className="form-group">
@@ -247,6 +267,7 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+                <small className="form-hint">{t('login.passwordEnglishHint', 'Password must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               <div className="form-group">
