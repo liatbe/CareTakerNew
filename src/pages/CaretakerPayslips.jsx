@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import MonthSelector from '../components/MonthSelector'
 import { storage } from '../utils/storage'
-import { getMonthKey, getYearFromDate, getContractYear, getContractYearKey, getContractYears } from '../utils/dateUtils'
+import { getMonthKey, getYearFromDate, getContractYear, getContractYearKey, getContractYears, formatDate, parseISO } from '../utils/dateUtils'
+import { format } from 'date-fns'
 import { exportToExcel } from '../utils/excelExport'
 import { isAdmin } from '../utils/auth'
 import './CaretakerPayslips.css'
@@ -280,30 +281,180 @@ const CaretakerPayslips = () => {
   }
 
   const handleExport = () => {
-    const shevahTotal = getShevahTotal()
-    const baseAmount = yearlyBaseAmounts[currentYear] || monthlyBaseAmount
-    const remainingBase = baseAmount - shevahTotal
-    const pension = remainingBase * 0.065
-    const firingPayment = remainingBase * 0.0833
-    const havraa = 174
-    const bituahLeumi = remainingBase * 0.036
-    const monthlyOneTime = getMonthlyOneTimePayments()
-    const yearlyPayments = getYearlyPayments()
+    const allPayslips = storage.get('payslips', {})
+    const shevahData = storage.get('shevahCoverage', {})
+    const worklog = storage.get('worklog', {})
+    const activityCharges = storage.get('activityCharges', {})
+    const yearlyPaymentsData = storage.get('yearlyPayments', {})
     
-    const exportData = [
-      { [t('caretakerPayslips.contractStartDate')]: contractStartDate },
-      { [t('caretakerPayslips.monthlyBaseAmount')]: baseAmount },
-      { [t('caretakerPayslips.baseAmount')]: baseAmount },
-      { [t('caretakerPayslips.paidByShevah')]: shevahTotal },
-      { [t('caretakerPayslips.remainingBaseAmount')]: remainingBase },
-      { [t('caretakerPayslips.pension')]: pension },
-      { [t('caretakerPayslips.firingPayment')]: firingPayment },
-      { [t('caretakerPayslips.havraa')]: havraa },
-      { [t('caretakerPayslips.bituahLeumi')]: bituahLeumi },
-      { [t('caretakerPayslips.paymentStatus')]: paymentStatus }
-    ]
+    // Get all month keys and sort them chronologically
+    const monthKeys = Object.keys(allPayslips).sort()
+    const exportRows = []
     
-    exportToExcel(exportData, `caretaker-payslip-${currentMonthKey}`)
+    // Helper function to get payslip data for a specific month
+    const getPayslipDataForMonth = (monthKey) => {
+      const monthDate = parseISO(`${monthKey}-01`)
+      const monthYear = getYearFromDate(monthDate)
+      const monthBaseAmount = yearlyBaseAmounts[monthYear] || monthlyBaseAmount
+      
+      // Get Shevah total for this month
+      const monthShevah = shevahData[monthKey] || []
+      const shevahTotal = monthShevah.reduce((sum, r) => sum + (r.hours * r.amountPerHour), 0)
+      
+      const remainingBase = monthBaseAmount - shevahTotal
+      const pension = remainingBase * 0.065
+      const firingPayment = remainingBase * 0.0833
+      const havraa = 174
+      const bituahLeumi = remainingBase * 0.036
+      
+      // Get monthly one-time payments for this month
+      const monthWorklog = worklog[monthKey] || []
+      const payslip = allPayslips[monthKey] || {}
+      const monthlyPaymentStatuses = payslip.monthlyPaymentStatuses || {}
+      const monthlyPaymentPaidAmounts = payslip.monthlyPaymentPaidAmounts || {}
+      
+      const monthlyOneTime = []
+      monthWorklog.forEach(activity => {
+        if (activity.type === 'shabbat' || activity.type === 'pocketMoney') {
+          const charge = activityCharges[activity.type] || 0
+          if (charge > 0) {
+            const paymentId = `${activity.type}_${activity.date}`
+            monthlyOneTime.push({
+              id: paymentId,
+              type: activity.type,
+              date: activity.date,
+              amount: charge,
+              description: t(`caretakerWorklog.${activity.type}`),
+              paymentStatus: monthlyPaymentStatuses[paymentId] || 'pending',
+              paidAmount: monthlyPaymentPaidAmounts[paymentId] || 0
+            })
+          }
+        }
+      })
+      
+      return {
+        monthKey,
+        monthDate,
+        monthBaseAmount,
+        shevahTotal,
+        remainingBase,
+        pension,
+        firingPayment,
+        havraa,
+        bituahLeumi,
+        monthlyOneTime,
+        paymentStatus: payslip.paymentStatus || 'pending',
+        monthlyPaidAmount: payslip.monthlyPaidAmount || 0
+      }
+    }
+    
+    // Create rows for all months
+    monthKeys.forEach(monthKey => {
+      const payslipData = getPayslipDataForMonth(monthKey)
+      const monthLabel = format(payslipData.monthDate, 'MMMM yyyy')
+      
+      // Build main row with all monthly data
+      const mainRow = {
+        [t('caretakerPayslips.month', 'Month')]: monthLabel,
+        [t('caretakerPayslips.contractStartDate')]: contractStartDate,
+        [t('caretakerPayslips.monthlyBaseAmount')]: payslipData.monthBaseAmount,
+        [t('caretakerPayslips.baseAmount')]: payslipData.monthBaseAmount,
+        [t('caretakerPayslips.paidByShevah')]: payslipData.shevahTotal,
+        [t('caretakerPayslips.remainingBaseAmount')]: payslipData.remainingBase,
+        [t('caretakerPayslips.pension')]: payslipData.pension,
+        [t('caretakerPayslips.firingPayment')]: payslipData.firingPayment,
+        [t('caretakerPayslips.havraa')]: payslipData.havraa,
+        [t('caretakerPayslips.bituahLeumi')]: payslipData.bituahLeumi,
+        [t('caretakerPayslips.paymentStatus')]: payslipData.paymentStatus,
+        [t('caretakerPayslips.monthlyOneTimePayments')]: '', // Empty for main row
+        [t('common.description')]: '', // Empty for main row
+        [t('common.amount')]: '', // Empty for main row
+        [t('caretakerPayslips.paymentStatus') + ' (One-Time)']: '' // Empty for main row
+      }
+      
+      exportRows.push(mainRow)
+      
+      // Add subrows for each monthly one-time payment
+      payslipData.monthlyOneTime.forEach((payment) => {
+        const subRow = {
+          [t('caretakerPayslips.month', 'Month')]: `  → ${payment.description}`, // Indented to show it's a subrow
+          [t('caretakerPayslips.contractStartDate')]: '',
+          [t('caretakerPayslips.monthlyBaseAmount')]: '',
+          [t('caretakerPayslips.baseAmount')]: '',
+          [t('caretakerPayslips.paidByShevah')]: '',
+          [t('caretakerPayslips.remainingBaseAmount')]: '',
+          [t('caretakerPayslips.pension')]: '',
+          [t('caretakerPayslips.firingPayment')]: '',
+          [t('caretakerPayslips.havraa')]: '',
+          [t('caretakerPayslips.bituahLeumi')]: '',
+          [t('caretakerPayslips.paymentStatus')]: '',
+          [t('caretakerPayslips.monthlyOneTimePayments')]: payment.description || '',
+          [t('common.description')]: payment.description || '',
+          [t('common.amount')]: payment.amount || 0,
+          [t('caretakerPayslips.paymentStatus') + ' (One-Time)']: payment.paymentStatus || 'pending'
+        }
+        
+        exportRows.push(subRow)
+      })
+    })
+    
+    // Add yearly payments as separate rows
+    if (contractStartDate) {
+      const contractYears = getContractYears(contractStartDate, true)
+      contractYears.forEach(contractYear => {
+        const yearKey = contractYear.key
+        const yearPayments = yearlyPaymentsData[yearKey] || {
+          medicalInsurance: 0,
+          taagidPayment: 0,
+          taagidHandling: 0
+        }
+        
+        // Remove bituahLeumi if it exists
+        const { bituahLeumi, ...paymentsWithoutBituah } = yearPayments
+        
+        // Create a row for each yearly payment
+        Object.entries(paymentsWithoutBituah).forEach(([key, amount]) => {
+          if (amount > 0) {
+            const paymentLabel = t(`caretakerPayslips.${key}`, key)
+            const yearLabel = contractYear.label
+            
+            // Get payment status from any payslip that has it
+            let paymentStatus = 'pending'
+            monthKeys.forEach(monthKey => {
+              const payslip = allPayslips[monthKey] || {}
+              const yearlyPaymentStatuses = payslip.yearlyPaymentStatuses || {}
+              const yearStatuses = yearlyPaymentStatuses[yearKey] || {}
+              if (yearStatuses[key]) {
+                paymentStatus = yearStatuses[key]
+              }
+            })
+            
+            const yearlyRow = {
+              [t('caretakerPayslips.month', 'Month')]: `${yearLabel} - ${paymentLabel}`,
+              [t('caretakerPayslips.contractStartDate')]: contractStartDate,
+              [t('caretakerPayslips.monthlyBaseAmount')]: '',
+              [t('caretakerPayslips.baseAmount')]: '',
+              [t('caretakerPayslips.paidByShevah')]: '',
+              [t('caretakerPayslips.remainingBaseAmount')]: '',
+              [t('caretakerPayslips.pension')]: '',
+              [t('caretakerPayslips.firingPayment')]: '',
+              [t('caretakerPayslips.havraa')]: '',
+              [t('caretakerPayslips.bituahLeumi')]: '',
+              [t('caretakerPayslips.paymentStatus')]: paymentStatus,
+              [t('caretakerPayslips.monthlyOneTimePayments')]: '',
+              [t('common.description')]: paymentLabel,
+              [t('common.amount')]: amount,
+              [t('caretakerPayslips.paymentStatus') + ' (One-Time)']: paymentStatus
+            }
+            
+            exportRows.push(yearlyRow)
+          }
+        })
+      })
+    }
+    
+    // Export all rows
+    exportToExcel(exportRows, `caretaker-payslips-export`)
   }
 
   const shevahTotal = getShevahTotal()
