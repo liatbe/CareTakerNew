@@ -1,0 +1,112 @@
+.user-management {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.add-user-form {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg);
+  background-color: var(--ios-gray-1);
+  border-radius: var(--border-radius);
+}
+
+.add-user-form .form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.add-user-form label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--ios-label);
+}
+
+.add-user-form input,
+.add-user-form select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 0.5px solid var(--ios-separator);
+  border-radius: var(--border-radius);
+  font-size: 17px;
+  background-color: var(--ios-background);
+  color: var(--ios-label);
+}
+
+.add-user-form .submit-button {
+  margin-top: var(--spacing-md);
+  padding: 0.875rem 1.5rem;
+  background-color: var(--ios-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-user-form .submit-button:hover {
+  background-color: var(--ios-blue-dark);
+}
+
+.users-list {
+  margin-top: var(--spacing-lg);
+}
+
+.users-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-list th,
+.users-list td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.users-list th {
+  font-weight: 600;
+  color: var(--ios-label);
+  background-color: var(--ios-gray-1);
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.role-admin {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--ios-green);
+}
+
+.role-caretaker {
+  background-color: rgba(0, 122, 255, 0.1);
+  color: var(--ios-blue);
+}
+
+.success-message {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--ios-green);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
+  border: 0.5px solid rgba(52, 199, 89, 0.2);
+}
+
+@media (max-width: 768px) {
+  .users-list table {
+    font-size: 14px;
+  }
+  
+  .users-list th,
+  .users-list td {
+    padding: var(--spacing-sm);
+  }
+}
+

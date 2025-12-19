@@ -11,12 +11,24 @@ import ShevahCoverage from './pages/ShevahCoverage'
 import CaretakerPayslips from './pages/CaretakerPayslips'
 import CaretakerWorklog from './pages/CaretakerWorklog'
 import Settings from './pages/Settings'
+import UserManagement from './pages/UserManagement'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
+import { isAdmin } from './utils/auth'
 import './App.css'
 
 const PrivateRoute = ({ children }) => {
   return isAuthenticated() ? children : <Navigate to="/login" replace />
+}
+
+const PrivateAdminRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />
+  }
+  if (!isAdmin()) {
+    return <Navigate to="/" replace />
+  }
+  return children
 }
 
 function App() {
@@ -82,13 +94,14 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="elder-financials" element={<ElderFinancials />} />
-          <Route path="elder-expenses" element={<ElderExpenses />} />
-          <Route path="shevah-coverage" element={<ShevahCoverage />} />
+          <Route index element={<PrivateAdminRoute><Dashboard /></PrivateAdminRoute>} />
+          <Route path="elder-financials" element={<PrivateAdminRoute><ElderFinancials /></PrivateAdminRoute>} />
+          <Route path="elder-expenses" element={<PrivateAdminRoute><ElderExpenses /></PrivateAdminRoute>} />
+          <Route path="shevah-coverage" element={<PrivateAdminRoute><ShevahCoverage /></PrivateAdminRoute>} />
           <Route path="caretaker-payslips" element={<CaretakerPayslips />} />
           <Route path="caretaker-worklog" element={<CaretakerWorklog />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<PrivateAdminRoute><Settings /></PrivateAdminRoute>} />
+          <Route path="user-management" element={<PrivateAdminRoute><UserManagement /></PrivateAdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

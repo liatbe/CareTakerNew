@@ -42,7 +42,8 @@
     "pending": "ממתין",
     "partial": "שולם חלקית",
     "currency": "₪",
-    "today": "היום"
+    "today": "היום",
+    "loading": "טוען..."
   },
   "navigation": {
     "dashboard": "סיכום",
@@ -52,6 +53,7 @@
     "caretakerPayslips": "תלושי שכר מטפל",
     "caretakerWorklog": "יומן עבודה מטפל",
     "settings": "הגדרות",
+    "userManagement": "ניהול משתמשים",
     "logout": "התנתק"
   },
   "dashboard": {
@@ -176,6 +178,24 @@
     "days": "ימים",
     "weeks": "שבועות",
     "months": "חודשים"
+  },
+  "userManagement": {
+    "title": "ניהול משתמשים",
+    "subtitle": "נהל משתמשים למשפחה שלך",
+    "familyUsers": "משתמשי המשפחה",
+    "addUser": "הוסף משתמש",
+    "role": "תפקיד",
+    "roleAdmin": "מנהל",
+    "roleCaretaker": "מטפל",
+    "allFieldsRequired": "כל השדות נדרשים",
+    "passwordTooShort": "הסיסמה חייבת להכיל לפחות 4 תווים",
+    "userAdded": "המשתמש נוסף בהצלחה",
+    "userDeleted": "המשתמש נמחק בהצלחה",
+    "addError": "נכשל בהוספת משתמש",
+    "deleteError": "נכשל במחיקת משתמש",
+    "loadError": "נכשל בטעינת משתמשים",
+    "confirmDelete": "האם אתה בטוח שברצונך למחוק את המשתמש \"{{username}}\"?",
+    "noUsers": "לא נמצאו משתמשים"
   }
 }
 

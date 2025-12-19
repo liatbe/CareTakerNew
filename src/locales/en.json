@@ -43,7 +43,8 @@
     "pending": "Pending",
     "partial": "Partially Paid",
     "currency": "₪",
-    "today": "Today"
+    "today": "Today",
+    "loading": "Loading..."
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -53,6 +54,7 @@
     "caretakerPayslips": "CareTaker Payslips",
     "caretakerWorklog": "CareTaker Worklog",
     "settings": "Settings",
+    "userManagement": "User Management",
     "logout": "Logout"
   },
   "dashboard": {
@@ -177,6 +179,24 @@
     "days": "days",
     "weeks": "weeks",
     "months": "months"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "subtitle": "Manage users for your family",
+    "familyUsers": "Family Users",
+    "addUser": "Add User",
+    "role": "Role",
+    "roleAdmin": "Admin",
+    "roleCaretaker": "Caretaker",
+    "allFieldsRequired": "All fields are required",
+    "passwordTooShort": "Password must be at least 4 characters",
+    "userAdded": "User added successfully",
+    "userDeleted": "User deleted successfully",
+    "addError": "Failed to add user",
+    "deleteError": "Failed to delete user",
+    "loadError": "Failed to load users",
+    "confirmDelete": "Are you sure you want to delete user \"{{username}}\"?",
+    "noUsers": "No users found"
   }
 }
 
