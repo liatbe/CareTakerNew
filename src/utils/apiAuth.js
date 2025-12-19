@@ -187,9 +187,10 @@ export const register = async (username, password, name, contractStartDate, mont
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(authData))
     
-    // Save contract data using storage utility (for consistency and proper key formatting)
+    // Save contract data and family name using storage utility
     storage.set('contractStartDate', contractStartDate)
     storage.set('monthlyBaseAmount', monthlyBaseAmount)
+    storage.set('familyName', name) // Store family name
     
     return { success: true, user: authData }
   }
@@ -247,10 +248,11 @@ export const register = async (username, password, name, contractStartDate, mont
     const createdUser = await response.json()
     const user = Array.isArray(createdUser) ? createdUser[0] : createdUser
 
-    // Save contract data using storage (saves to localStorage immediately, syncs to backend in background)
+    // Save contract data and family name using storage (saves to localStorage immediately, syncs to backend in background)
     // This ensures Settings page can read the values right away
     storage.set('contractStartDate', contractStartDate)
     storage.set('monthlyBaseAmount', monthlyBaseAmount)
+    storage.set('familyName', name) // Store family name
 
     // Auto-login after registration
     const authData = {

@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { logout, getUserRole, isAdmin } from '../utils/auth'
+import { storage } from '../utils/storage'
 import LanguageSwitcher from './LanguageSwitcher'
 import './Layout.css'
 
@@ -10,6 +12,13 @@ const Layout = () => {
   const location = useLocation()
   const userRole = getUserRole()
   const admin = isAdmin()
+  const [familyName, setFamilyName] = useState('')
+
+  useEffect(() => {
+    // Load family name from storage
+    const name = storage.get('familyName', '')
+    setFamilyName(name)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -40,7 +49,9 @@ const Layout = () => {
     <div className="layout">
       <header className="layout-header">
         <div className="header-content">
-          <h1 className="header-title">{t('login.title')}</h1>
+          <h1 className="header-title">
+            {familyName ? `${familyName} - ${t('login.title')}` : t('login.title')}
+          </h1>
           <div className="header-actions">
             <LanguageSwitcher />
             <button className="logout-button" onClick={handleLogout}>

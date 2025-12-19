@@ -12,7 +12,6 @@ const UserManagement = () => {
   const [showAddForm, setShowAddForm] = useState(false)
   const [newUsername, setNewUsername] = useState('')
   const [newPassword, setNewPassword] = useState('')
-  const [newName, setNewName] = useState('')
   const [newRole, setNewRole] = useState('caretaker')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -43,7 +42,7 @@ const UserManagement = () => {
     setError('')
     setSuccess('')
 
-    if (!newUsername || !newPassword || !newName) {
+    if (!newUsername || !newPassword) {
       setError(t('userManagement.allFieldsRequired', 'All fields are required'))
       return
     }
@@ -54,12 +53,11 @@ const UserManagement = () => {
     }
 
     try {
-      const result = await addFamilyUser(newUsername, newPassword, newName, newRole)
+      const result = await addFamilyUser(newUsername, newPassword, newUsername, newRole)
       if (result.success) {
         setSuccess(t('userManagement.userAdded', 'User added successfully'))
         setNewUsername('')
         setNewPassword('')
-        setNewName('')
         setNewRole('caretaker')
         setShowAddForm(false)
         loadUsers()
@@ -121,15 +119,6 @@ const UserManagement = () => {
         {showAddForm && (
           <form onSubmit={handleAddUser} className="add-user-form">
             <div className="form-group">
-              <label>{t('login.name', 'Family Name')}</label>
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
               <label>{t('login.username', 'Username')}</label>
               <input
                 type="text"
@@ -169,7 +158,6 @@ const UserManagement = () => {
             <table>
               <thead>
                 <tr>
-                  <th>{t('login.name', 'Name')}</th>
                   <th>{t('login.username', 'Username')}</th>
                   <th>{t('userManagement.role', 'Role')}</th>
                   <th>{t('common.delete', 'Delete')}</th>
@@ -178,7 +166,6 @@ const UserManagement = () => {
               <tbody>
                 {users.map(user => (
                   <tr key={user.id || user.username}>
-                    <td>{user.name || user.username}</td>
                     <td>{user.username}</td>
                     <td>
                       <span className={`role-badge role-${user.role || 'admin'}`}>
