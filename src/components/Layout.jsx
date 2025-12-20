@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { logout, getUserRole, isAdmin } from '../utils/auth'
+import { logout, getUserRole, isAdmin, getCurrentUser } from '../utils/auth'
 import { storage } from '../utils/storage'
 import LanguageSwitcher from './LanguageSwitcher'
 import './Layout.css'
@@ -13,6 +13,7 @@ const Layout = () => {
   const userRole = getUserRole()
   const admin = isAdmin()
   const [familyName, setFamilyName] = useState('')
+  const [currentUsername, setCurrentUsername] = useState('')
 
   useEffect(() => {
     // Load family name from storage
@@ -24,11 +25,23 @@ const Layout = () => {
       }
     }
     
+    // Load current username
+    const loadCurrentUsername = () => {
+      const user = getCurrentUser()
+      if (user && user.username) {
+        setCurrentUsername(user.username)
+      }
+    }
+    
     // Load immediately
     loadFamilyName()
+    loadCurrentUsername()
     
     // Also check after a short delay in case it was just saved
-    const timeoutId = setTimeout(loadFamilyName, 100)
+    const timeoutId = setTimeout(() => {
+      loadFamilyName()
+      loadCurrentUsername()
+    }, 100)
     
     return () => clearTimeout(timeoutId)
   }, [location])
@@ -68,6 +81,9 @@ const Layout = () => {
           </h1>
           <div className="header-actions">
             <LanguageSwitcher />
+            {currentUsername && (
+              <span className="current-username">{currentUsername}</span>
+            )}
             <button className="logout-button" onClick={handleLogout}>
               {t('navigation.logout')}
             </button>

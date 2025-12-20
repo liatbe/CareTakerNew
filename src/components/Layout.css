@@ -41,6 +41,16 @@
   align-items: center;
 }
 
+.current-username {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ios-label);
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+}
+
 .logout-button {
   background-color: var(--ios-red);
   color: white;
