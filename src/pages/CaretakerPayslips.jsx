@@ -143,26 +143,63 @@ const CaretakerPayslips = () => {
     
     // Get yearly payments for this contract year (excluding bituahLeumi)
     const yearlyPaymentsData = storage.get('yearlyPayments', {})
-    const yearPayments = yearlyPaymentsData[yearKey] || {
+    let yearPayments = yearlyPaymentsData[yearKey] || {
       medicalInsurance: 0,
       taagidPayment: 2000,
-      taagidHandling: 840
+      taagidHandling: 840,
+      havraaAmountPerDay: 174,
+      havraaDays: 5
+    }
+    
+    // Ensure Havraa fields exist (for backward compatibility and year 1 initialization)
+    if (!yearPayments.havraaAmountPerDay) {
+      yearPayments.havraaAmountPerDay = 174
+    }
+    if (!yearPayments.havraaDays) {
+      yearPayments.havraaDays = 5
+    }
+    
+    // Save back if we added defaults (especially for year_0)
+    if (!yearlyPaymentsData[yearKey]) {
+      yearlyPaymentsData[yearKey] = yearPayments
+      storage.set('yearlyPayments', yearlyPaymentsData)
+    } else if (!yearlyPaymentsData[yearKey].havraaAmountPerDay || !yearlyPaymentsData[yearKey].havraaDays) {
+      yearlyPaymentsData[yearKey] = yearPayments
+      storage.set('yearlyPayments', yearlyPaymentsData)
     }
     
     // Remove bituahLeumi if it exists (for backward compatibility)
-    const { bituahLeumi, ...paymentsWithoutBituah } = yearPayments
+    const { bituahLeumi, havraaAmountPerDay, havraaDays, ...otherPayments } = yearPayments
     
     const payslips = storage.get('payslips', {})
     const currentPayslip = payslips[currentMonthKey] || {}
     const yearlyPaymentStatuses = currentPayslip.yearlyPaymentStatuses || {}
     const yearStatuses = yearlyPaymentStatuses[yearKey] || {}
     
-    // Add payment status to each payment
-    return Object.entries(paymentsWithoutBituah).map(([key, value]) => ({
-      key,
-      amount: value,
-      paymentStatus: yearStatuses[key] || 'pending'
-    }))
+    const payments = []
+    
+    // Add Havraa as a special yearly payment (amount × days)
+    if (havraaAmountPerDay && havraaDays) {
+      const havraaTotal = havraaAmountPerDay * havraaDays
+      payments.push({
+        key: 'havraa',
+        amount: havraaTotal,
+        paymentStatus: yearStatuses.havraa || 'pending',
+        amountPerDay: havraaAmountPerDay,
+        days: havraaDays
+      })
+    }
+    
+    // Add other yearly payments
+    Object.entries(otherPayments).forEach(([key, value]) => {
+      payments.push({
+        key,
+        amount: value,
+        paymentStatus: yearStatuses[key] || 'pending'
+      })
+    })
+    
+    return payments
   }
 
   const handlePaymentStatusChange = (status) => {
@@ -304,7 +341,6 @@ const CaretakerPayslips = () => {
       const remainingBase = monthBaseAmount - shevahTotal
       const pension = remainingBase * 0.065
       const firingPayment = remainingBase * 0.0833
-      const havraa = 174
       const bituahLeumi = remainingBase * 0.036
       
       // Get monthly one-time payments for this month
@@ -340,7 +376,6 @@ const CaretakerPayslips = () => {
         remainingBase,
         pension,
         firingPayment,
-        havraa,
         bituahLeumi,
         monthlyOneTime,
         paymentStatus: payslip.paymentStatus || 'pending',
@@ -363,7 +398,6 @@ const CaretakerPayslips = () => {
         [t('caretakerPayslips.remainingBaseAmount')]: payslipData.remainingBase,
         [t('caretakerPayslips.pension')]: payslipData.pension,
         [t('caretakerPayslips.firingPayment')]: payslipData.firingPayment,
-        [t('caretakerPayslips.havraa')]: payslipData.havraa,
         [t('caretakerPayslips.bituahLeumi')]: payslipData.bituahLeumi,
         [t('caretakerPayslips.paymentStatus')]: payslipData.paymentStatus,
         [t('caretakerPayslips.monthlyOneTimePayments')]: '', // Empty for main row
@@ -385,7 +419,6 @@ const CaretakerPayslips = () => {
           [t('caretakerPayslips.remainingBaseAmount')]: '',
           [t('caretakerPayslips.pension')]: '',
           [t('caretakerPayslips.firingPayment')]: '',
-          [t('caretakerPayslips.havraa')]: '',
           [t('caretakerPayslips.bituahLeumi')]: '',
           [t('caretakerPayslips.paymentStatus')]: '',
           [t('caretakerPayslips.monthlyOneTimePayments')]: payment.description || '',
@@ -405,15 +438,54 @@ const CaretakerPayslips = () => {
         const yearKey = contractYear.key
         const yearPayments = yearlyPaymentsData[yearKey] || {
           medicalInsurance: 0,
-          taagidPayment: 0,
-          taagidHandling: 0
+          taagidPayment: 2000,
+          taagidHandling: 840,
+          havraaAmountPerDay: 174,
+          havraaDays: 5
         }
         
         // Remove bituahLeumi if it exists
-        const { bituahLeumi, ...paymentsWithoutBituah } = yearPayments
+        const { bituahLeumi, havraaAmountPerDay, havraaDays, ...otherPayments } = yearPayments
         
-        // Create a row for each yearly payment
-        Object.entries(paymentsWithoutBituah).forEach(([key, amount]) => {
+        // Add Havraa as a yearly payment (amount × days)
+        if (havraaAmountPerDay && havraaDays) {
+          const havraaTotal = havraaAmountPerDay * havraaDays
+          const paymentLabel = `${t('caretakerPayslips.havraa')} (${havraaAmountPerDay} × ${havraaDays} ${t('settings.days', 'days')})`
+          const yearLabel = contractYear.label
+          
+          // Get payment status from any payslip that has it
+          let paymentStatus = 'pending'
+          monthKeys.forEach(monthKey => {
+            const payslip = allPayslips[monthKey] || {}
+            const yearlyPaymentStatuses = payslip.yearlyPaymentStatuses || {}
+            const yearStatuses = yearlyPaymentStatuses[yearKey] || {}
+            if (yearStatuses.havraa) {
+              paymentStatus = yearStatuses.havraa
+            }
+          })
+          
+          const yearlyRow = {
+            [t('caretakerPayslips.month', 'Month')]: `${yearLabel} - ${paymentLabel}`,
+            [t('caretakerPayslips.contractStartDate')]: contractStartDate,
+            [t('caretakerPayslips.monthlyBaseAmount')]: '',
+            [t('caretakerPayslips.baseAmount')]: '',
+            [t('caretakerPayslips.paidByShevah')]: '',
+            [t('caretakerPayslips.remainingBaseAmount')]: '',
+            [t('caretakerPayslips.pension')]: '',
+            [t('caretakerPayslips.firingPayment')]: '',
+            [t('caretakerPayslips.bituahLeumi')]: '',
+            [t('caretakerPayslips.paymentStatus')]: paymentStatus,
+            [t('caretakerPayslips.monthlyOneTimePayments')]: '',
+            [t('common.description')]: paymentLabel,
+            [t('common.amount')]: havraaTotal,
+            [t('caretakerPayslips.paymentStatus') + ' (One-Time)']: paymentStatus
+          }
+          
+          exportRows.push(yearlyRow)
+        }
+        
+        // Create a row for each other yearly payment
+        Object.entries(otherPayments).forEach(([key, amount]) => {
           if (amount > 0) {
             const paymentLabel = t(`caretakerPayslips.${key}`, key)
             const yearLabel = contractYear.label
@@ -438,7 +510,6 @@ const CaretakerPayslips = () => {
               [t('caretakerPayslips.remainingBaseAmount')]: '',
               [t('caretakerPayslips.pension')]: '',
               [t('caretakerPayslips.firingPayment')]: '',
-              [t('caretakerPayslips.havraa')]: '',
               [t('caretakerPayslips.bituahLeumi')]: '',
               [t('caretakerPayslips.paymentStatus')]: paymentStatus,
               [t('caretakerPayslips.monthlyOneTimePayments')]: '',
@@ -462,9 +533,8 @@ const CaretakerPayslips = () => {
   const remainingBase = baseAmount - shevahTotal
   const pension = remainingBase * 0.065
   const firingPayment = remainingBase * 0.0833
-  const havraa = 174
   const bituahLeumi = remainingBase * 0.036
-  const monthlyTotal = remainingBase + pension + firingPayment + havraa + bituahLeumi
+  const monthlyTotal = remainingBase + pension + firingPayment + bituahLeumi
   const monthlyOneTimePayments = getMonthlyOneTimePayments()
   const monthlyOneTimeTotal = monthlyOneTimePayments.reduce((sum, p) => sum + p.amount, 0)
   const yearlyPayments = getYearlyPayments()
@@ -542,10 +612,6 @@ const CaretakerPayslips = () => {
             <div className="payslip-row">
               <div className="payslip-label">{t('caretakerPayslips.firingPayment')}</div>
               <div className="payslip-value">{firingPayment.toFixed(2)} ₪</div>
-            </div>
-            <div className="payslip-row">
-              <div className="payslip-label">{t('caretakerPayslips.havraa')}</div>
-              <div className="payslip-value">{havraa.toFixed(2)} ₪</div>
             </div>
             <div className="payslip-row">
               <div className="payslip-label">{t('caretakerPayslips.bituahLeumi')} (3.6%)</div>
@@ -688,9 +754,13 @@ const CaretakerPayslips = () => {
             {yearlyPayments.map((payment) => {
               const paidAmount = yearlyPaymentPaidAmounts[payment.key] || 0
               const remainingAmount = payment.amount - paidAmount
+              // For Havraa, show the calculation (amount × days)
+              const paymentLabel = payment.key === 'havraa' && payment.amountPerDay && payment.days
+                ? `${t('caretakerPayslips.havraa')} (${payment.amountPerDay} × ${payment.days} ${t('settings.days', 'days')})`
+                : t(`caretakerPayslips.${payment.key}`)
               return (
                 <div key={payment.key} className="yearly-payment-row">
-                  <label>{t(`caretakerPayslips.${payment.key}`)}:</label>
+                  <label>{paymentLabel}:</label>
                   <span className="yearly-payment-amount">{payment.amount.toFixed(2)} ₪</span>
                   <div className="payment-status-select">
                     <select 

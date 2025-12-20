@@ -130,6 +130,13 @@
   font-size: 15px;
 }
 
+.setting-item .havraa-total {
+  font-size: 13px;
+  color: var(--ios-label-secondary);
+  font-weight: 500;
+  margin-left: auto;
+}
+
 .calculate-button {
   background-color: var(--ios-blue);
   color: white;

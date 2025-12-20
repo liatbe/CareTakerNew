@@ -21,7 +21,9 @@ const Settings = () => {
   const [yearlyPayments, setYearlyPayments] = useState({
     medicalInsurance: 0,
     taagidPayment: 2000,
-    taagidHandling: 840
+    taagidHandling: 840,
+    havraaAmountPerDay: 174,
+    havraaDays: 5
   })
   const [expectedExpenses, setExpectedExpenses] = useState(null)
   const [calculationParams, setCalculationParams] = useState({
@@ -62,11 +64,31 @@ const Settings = () => {
       setSelectedContractYear(currentContractYear)
       const yearKey = `year_${currentContractYear}`
       const yearlyPaymentsData = storage.get('yearlyPayments', {})
-      const yearly = yearlyPaymentsData[yearKey] || {
+      let yearly = yearlyPaymentsData[yearKey] || {
         medicalInsurance: 0,
         taagidPayment: 2000,
-        taagidHandling: 840
+        taagidHandling: 840,
+        havraaAmountPerDay: 174,
+        havraaDays: 5
       }
+      
+      // Ensure Havraa fields exist (for backward compatibility and year 1 initialization)
+      if (!yearly.havraaAmountPerDay) {
+        yearly.havraaAmountPerDay = 174
+      }
+      if (!yearly.havraaDays) {
+        yearly.havraaDays = 5
+      }
+      
+      // Save back if we added defaults
+      if (!yearlyPaymentsData[yearKey]) {
+        yearlyPaymentsData[yearKey] = yearly
+        storage.set('yearlyPayments', yearlyPaymentsData)
+      } else if (!yearlyPaymentsData[yearKey].havraaAmountPerDay || !yearlyPaymentsData[yearKey].havraaDays) {
+        yearlyPaymentsData[yearKey] = yearly
+        storage.set('yearlyPayments', yearlyPaymentsData)
+      }
+      
       // Remove bituahLeumi if it exists (for backward compatibility)
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
       setYearlyPayments(paymentsWithoutBituah)
@@ -74,8 +96,17 @@ const Settings = () => {
       const yearly = storage.get('yearlyPayments', {
         medicalInsurance: 0,
         taagidPayment: 2000,
-        taagidHandling: 840
+        taagidHandling: 840,
+        havraaAmountPerDay: 174,
+        havraaDays: 5
       })
+      // Ensure Havraa fields exist
+      if (!yearly.havraaAmountPerDay) {
+        yearly.havraaAmountPerDay = 174
+      }
+      if (!yearly.havraaDays) {
+        yearly.havraaDays = 5
+      }
       // Remove bituahLeumi if it exists
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
       setYearlyPayments(paymentsWithoutBituah)
@@ -97,11 +128,31 @@ const Settings = () => {
       setSelectedContractYear(currentContractYear)
       const yearKey = `year_${currentContractYear}`
       const yearlyPaymentsData = storage.get('yearlyPayments', {})
-      const yearly = yearlyPaymentsData[yearKey] || {
+      let yearly = yearlyPaymentsData[yearKey] || {
         medicalInsurance: 0,
         taagidPayment: 2000,
-        taagidHandling: 840
+        taagidHandling: 840,
+        havraaAmountPerDay: 174,
+        havraaDays: 5
       }
+      
+      // Ensure Havraa fields exist (for backward compatibility and year 1 initialization)
+      if (!yearly.havraaAmountPerDay) {
+        yearly.havraaAmountPerDay = 174
+      }
+      if (!yearly.havraaDays) {
+        yearly.havraaDays = 5
+      }
+      
+      // Save back if we added defaults
+      if (!yearlyPaymentsData[yearKey]) {
+        yearlyPaymentsData[yearKey] = yearly
+        storage.set('yearlyPayments', yearlyPaymentsData)
+      } else if (!yearlyPaymentsData[yearKey].havraaAmountPerDay || !yearlyPaymentsData[yearKey].havraaDays) {
+        yearlyPaymentsData[yearKey] = yearly
+        storage.set('yearlyPayments', yearlyPaymentsData)
+      }
+      
       // Remove bituahLeumi if it exists (for backward compatibility)
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
       setYearlyPayments(paymentsWithoutBituah)
@@ -139,11 +190,31 @@ const Settings = () => {
     setSelectedContractYear(year)
     const yearKey = `year_${year}`
     const yearlyPaymentsData = storage.get('yearlyPayments', {})
-    const yearly = yearlyPaymentsData[yearKey] || {
-        medicalInsurance: 0,
-        taagidPayment: 2000,
-        taagidHandling: 840
-      }
+    let yearly = yearlyPaymentsData[yearKey] || {
+      medicalInsurance: 0,
+      taagidPayment: 2000,
+      taagidHandling: 840,
+      havraaAmountPerDay: 174,
+      havraaDays: 5
+    }
+    
+    // Ensure Havraa fields exist (for backward compatibility and year 1 initialization)
+    if (!yearly.havraaAmountPerDay) {
+      yearly.havraaAmountPerDay = 174
+    }
+    if (!yearly.havraaDays) {
+      yearly.havraaDays = 5
+    }
+    
+    // Save back if we added defaults
+    if (!yearlyPaymentsData[yearKey]) {
+      yearlyPaymentsData[yearKey] = yearly
+      storage.set('yearlyPayments', yearlyPaymentsData)
+    } else if (!yearlyPaymentsData[yearKey].havraaAmountPerDay || !yearlyPaymentsData[yearKey].havraaDays) {
+      yearlyPaymentsData[yearKey] = yearly
+      storage.set('yearlyPayments', yearlyPaymentsData)
+    }
+    
     // Remove bituahLeumi if it exists (for backward compatibility)
     const { bituahLeumi, ...paymentsWithoutBituah } = yearly
     setYearlyPayments(paymentsWithoutBituah)
@@ -161,10 +232,9 @@ const Settings = () => {
     const remainingBase = baseAmount
     const pension = remainingBase * 0.065
     const firingPayment = remainingBase * 0.0833
-    const havraa = 174
     const bituahLeumi = remainingBase * 0.036
-    // Monthly total = base + pension + firing payment + havraa + bituah leumi
-    const monthlyTotal = remainingBase + pension + firingPayment + havraa + bituahLeumi
+    // Monthly total = base + pension + firing payment + bituah leumi (Havraa moved to yearly)
+    const monthlyTotal = remainingBase + pension + firingPayment + bituahLeumi
     
     // Yearly calculations
     const yearlyBase = monthlyTotal * 12
@@ -188,11 +258,19 @@ const Settings = () => {
     const yearPayments = yearlyPaymentsData[yearKey] || {
       medicalInsurance: 0,
       taagidPayment: 2000,
-      taagidHandling: 840
+      taagidHandling: 840,
+      havraaAmountPerDay: 174,
+      havraaDays: 5
     }
     // Remove bituahLeumi if it exists (it's now in monthly payslip, not yearly payments)
-    const { bituahLeumi: _, ...paymentsWithoutBituah } = yearPayments
-    const yearlyOneTimeTotal = Object.values(paymentsWithoutBituah).reduce((sum, v) => sum + v, 0)
+    const { bituahLeumi: _, havraaAmountPerDay, havraaDays, ...otherPayments } = yearPayments
+    
+    // Calculate Havraa total (amount per day × days)
+    const havraaTotal = (havraaAmountPerDay || 174) * (havraaDays || 5)
+    
+    // Calculate other yearly payments total
+    const otherYearlyTotal = Object.values(otherPayments).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
+    const yearlyOneTimeTotal = otherYearlyTotal + havraaTotal
     
     const total = yearlyBase + vacationDaysCost + holidayVacationDaysCost + pocketMoneyCost + shabbatCost + yearlyOneTimeTotal
     
@@ -202,9 +280,13 @@ const Settings = () => {
       holidayVacationDaysCost,
       pocketMoneyCost,
       shabbatCost,
+      havraaTotal,
+      otherYearlyTotal,
       yearlyOneTimeTotal,
       total,
-      calculationParams
+      calculationParams,
+      havraaAmountPerDay: havraaAmountPerDay || 174,
+      havraaDays: havraaDays || 5
     })
   }
 
@@ -306,18 +388,55 @@ const Settings = () => {
             )}
           </div>
           <div className="settings-card">
-            {Object.entries(yearlyPayments).map(([key, value]) => (
-              <div key={key} className="setting-item">
-                <label>{t(`caretakerPayslips.${key}`)}</label>
-                <input
-                  type="number"
-                  value={value}
-                  onChange={(e) => handleYearlyPaymentChange(key, e.target.value)}
-                  step="0.01"
-                />
-                <span>₪</span>
-              </div>
-            ))}
+            {Object.entries(yearlyPayments).map(([key, value]) => {
+              // Special handling for Havraa - show amount and days separately
+              if (key === 'havraaAmountPerDay') {
+                const havraaDays = yearlyPayments.havraaDays || 5
+                const havraaTotal = value * havraaDays
+                return (
+                  <div key={key} className="setting-item">
+                    <label>{t('caretakerPayslips.havraa', 'Havraa')} - {t('settings.amountPerDay', 'Amount per Day')}</label>
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={(e) => handleYearlyPaymentChange(key, e.target.value)}
+                      step="0.01"
+                    />
+                    <span>₪</span>
+                  </div>
+                )
+              }
+              if (key === 'havraaDays') {
+                const havraaAmount = yearlyPayments.havraaAmountPerDay || 174
+                const havraaTotal = havraaAmount * value
+                return (
+                  <div key={key} className="setting-item">
+                    <label>{t('caretakerPayslips.havraa', 'Havraa')} - {t('settings.days', 'Days')}</label>
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={(e) => handleYearlyPaymentChange(key, e.target.value)}
+                      step="1"
+                      min="0"
+                    />
+                    <span className="havraa-total">({t('settings.total', 'Total')}: {havraaTotal.toFixed(2)} ₪)</span>
+                  </div>
+                )
+              }
+              // Regular yearly payments
+              return (
+                <div key={key} className="setting-item">
+                  <label>{t(`caretakerPayslips.${key}`)}</label>
+                  <input
+                    type="number"
+                    value={value}
+                    onChange={(e) => handleYearlyPaymentChange(key, e.target.value)}
+                    step="0.01"
+                  />
+                  <span>₪</span>
+                </div>
+              )
+            })}
           </div>
         </div>
         
@@ -415,7 +534,15 @@ const Settings = () => {
                   <strong>{expectedExpenses.shabbatCost.toFixed(2)} ₪</strong>
                 </div>
                 <div className="expense-row">
-                  <span>{t('settings.yearlyOneTime', 'Yearly One-Time Payments')}</span>
+                  <span>{t('caretakerPayslips.havraa', 'Havraa')} ({expectedExpenses.havraaAmountPerDay} × {expectedExpenses.havraaDays} {t('settings.days', 'days')})</span>
+                  <strong>{expectedExpenses.havraaTotal.toFixed(2)} ₪</strong>
+                </div>
+                <div className="expense-row">
+                  <span>{t('settings.otherYearlyPayments', 'Other Yearly Payments')}</span>
+                  <strong>{expectedExpenses.otherYearlyTotal.toFixed(2)} ₪</strong>
+                </div>
+                <div className="expense-row">
+                  <span>{t('settings.yearlyOneTime', 'Yearly One-Time Payments Total')}</span>
                   <strong>{expectedExpenses.yearlyOneTimeTotal.toFixed(2)} ₪</strong>
                 </div>
                 <div className="expense-row total">

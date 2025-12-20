@@ -181,7 +181,10 @@
     "shabbatMonthsPerYear": "Shabbat Months per Year",
     "days": "days",
     "weeks": "weeks",
-    "months": "months"
+    "months": "months",
+    "amountPerDay": "Amount per Day",
+    "otherYearlyPayments": "Other Yearly Payments",
+    "total": "Total"
   },
   "userManagement": {
     "title": "User Management",

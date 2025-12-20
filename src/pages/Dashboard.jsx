@@ -101,16 +101,31 @@ const Dashboard = () => {
       const yearPayments = yearlyPaymentsData[yearKey] || {
         medicalInsurance: 0,
         taagidPayment: 2000,
-        taagidHandling: 840
+        taagidHandling: 840,
+        havraaAmountPerDay: 174,
+        havraaDays: 5
       }
       
+      // Remove bituahLeumi and handle Havraa separately
+      const { bituahLeumi, havraaAmountPerDay, havraaDays, ...otherPayments } = yearPayments
+      
+      // Calculate Havraa total (amount × days)
+      const havraaTotal = (havraaAmountPerDay || 174) * (havraaDays || 5)
+      
       // Check all yearly payments - if they have amounts > 0, they should have a status
-      const paymentsWithAmounts = Object.entries(yearPayments)
-        .filter(([key, amount]) => {
-          // Exclude bituahLeumi if it exists
-          if (key === 'bituahLeumi') return false
-          return amount > 0
-        })
+      const paymentsWithAmounts = []
+      
+      // Add Havraa if it has a total
+      if (havraaTotal > 0) {
+        paymentsWithAmounts.push(['havraa', havraaTotal])
+      }
+      
+      // Add other payments
+      Object.entries(otherPayments).forEach(([key, amount]) => {
+        if (amount > 0) {
+          paymentsWithAmounts.push([key, amount])
+        }
+      })
       
       // For payments with amounts, check their status (default to 'pending' if not set)
       const unpaidYearlyPayments = paymentsWithAmounts

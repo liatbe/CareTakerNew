@@ -465,7 +465,9 @@ export const initializeData = () => {
     storage.set('yearlyPayments', {
       medicalInsurance: 0,
       taagidPayment: 2000,
-      taagidHandling: 840
+      taagidHandling: 840,
+      havraaAmountPerDay: 174,
+      havraaDays: 5
     })
   }
 }

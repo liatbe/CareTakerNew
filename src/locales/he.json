@@ -180,7 +180,10 @@
     "shabbatMonthsPerYear": "חודשי שבת לשנה",
     "days": "ימים",
     "weeks": "שבועות",
-    "months": "חודשים"
+    "months": "חודשים",
+    "amountPerDay": "סכום ליום",
+    "otherYearlyPayments": "תשלומים שנתיים אחרים",
+    "total": "סה\"כ"
   },
   "userManagement": {
     "title": "ניהול משתמשים",
