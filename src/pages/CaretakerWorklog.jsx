@@ -9,9 +9,9 @@ import './CaretakerWorklog.css'
 // Activity type colors (matching Calendar component) - Pastel colors
 const activityColors = {
   vacationDay: '#A8E6CF',      // Pastel Green
-  sickDay: '#FFD3A5',          // Pastel Orange
+  sickDay: '#FFEAA7',          // Pastel Yellow
   shabbat: '#A8C8EC',          // Pastel Blue
-  pocketMoney: '#FFEAA7',      // Pastel Yellow
+  pocketMoney: '#FFD3A5',      // Pastel Orange
   hospitalVisit: '#FFB3BA',    // Pastel Red
   holidayVacation: '#D4A5E6'   // Pastel Purple
 }
