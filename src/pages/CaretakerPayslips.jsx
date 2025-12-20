@@ -10,6 +10,7 @@ import './CaretakerPayslips.css'
 
 const CaretakerPayslips = () => {
   const isReadOnly = !isAdmin() // Read-only for caretakers
+  const userIsAdmin = isAdmin() // Check if user is admin for conditional display
   const { t } = useTranslation()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [contractStartDate, setContractStartDate] = useState('')
@@ -538,7 +539,11 @@ const CaretakerPayslips = () => {
   const monthlyOneTimePayments = getMonthlyOneTimePayments()
   const monthlyOneTimeTotal = monthlyOneTimePayments.reduce((sum, p) => sum + p.amount, 0)
   const yearlyPayments = getYearlyPayments()
-  const yearlyTotal = yearlyPayments.reduce((sum, p) => sum + p.amount, 0)
+  // For caretakers, only calculate total from visible payments (Medical Insurance)
+  const visibleYearlyPayments = userIsAdmin 
+    ? yearlyPayments 
+    : yearlyPayments.filter(p => p.key === 'medicalInsurance')
+  const yearlyTotal = visibleYearlyPayments.reduce((sum, p) => sum + p.amount, 0)
 
   return (
     <div className="caretaker-payslips">
@@ -595,32 +600,40 @@ const CaretakerPayslips = () => {
               <div className="payslip-label">{t('caretakerPayslips.baseAmount')}</div>
               <div className="payslip-value">{baseAmount.toFixed(2)} ₪</div>
             </div>
-            {hasShevahEntries() && (
+            {userIsAdmin && hasShevahEntries() && (
               <div className="payslip-row">
                 <div className="payslip-label">{t('caretakerPayslips.paidByShevah')}</div>
                 <div className="payslip-value">{shevahTotal.toFixed(2)} ₪</div>
               </div>
             )}
-            <div className="payslip-row">
-              <div className="payslip-label">{t('caretakerPayslips.remainingBaseAmount')}</div>
-              <div className="payslip-value">{remainingBase.toFixed(2)} ₪</div>
-            </div>
-            <div className="payslip-row">
-              <div className="payslip-label">{t('caretakerPayslips.pension')}</div>
-              <div className="payslip-value">{pension.toFixed(2)} ₪</div>
-            </div>
-            <div className="payslip-row">
-              <div className="payslip-label">{t('caretakerPayslips.firingPayment')}</div>
-              <div className="payslip-value">{firingPayment.toFixed(2)} ₪</div>
-            </div>
+            {userIsAdmin && (
+              <div className="payslip-row">
+                <div className="payslip-label">{t('caretakerPayslips.remainingBaseAmount')}</div>
+                <div className="payslip-value">{remainingBase.toFixed(2)} ₪</div>
+              </div>
+            )}
+            {userIsAdmin && (
+              <div className="payslip-row">
+                <div className="payslip-label">{t('caretakerPayslips.pension')}</div>
+                <div className="payslip-value">{pension.toFixed(2)} ₪</div>
+              </div>
+            )}
+            {userIsAdmin && (
+              <div className="payslip-row">
+                <div className="payslip-label">{t('caretakerPayslips.firingPayment')}</div>
+                <div className="payslip-value">{firingPayment.toFixed(2)} ₪</div>
+              </div>
+            )}
             <div className="payslip-row">
               <div className="payslip-label">{t('caretakerPayslips.bituahLeumi')} (3.6%)</div>
               <div className="payslip-value">{bituahLeumi.toFixed(2)} ₪</div>
             </div>
-            <div className="payslip-row total">
-              <div className="payslip-label">{t('common.total')}</div>
-              <div className="payslip-value">{monthlyTotal.toFixed(2)} ₪</div>
-            </div>
+            {userIsAdmin && (
+              <div className="payslip-row total">
+                <div className="payslip-label">{t('common.total')}</div>
+                <div className="payslip-value">{monthlyTotal.toFixed(2)} ₪</div>
+              </div>
+            )}
           </div>
           
           <div className="payment-status">
@@ -751,7 +764,8 @@ const CaretakerPayslips = () => {
             )}
           </div>
           <div className="yearly-payments">
-            {yearlyPayments.map((payment) => {
+            {visibleYearlyPayments.map((payment) => {
+              
               const paidAmount = yearlyPaymentPaidAmounts[payment.key] || 0
               const remainingAmount = payment.amount - paidAmount
               // For Havraa, show the calculation (amount × days)
