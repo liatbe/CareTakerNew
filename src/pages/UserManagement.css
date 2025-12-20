@@ -33,6 +33,47 @@
   color: var(--ios-label);
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ios-label-secondary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--border-radius);
+  width: 32px;
+  height: 32px;
+}
+
+.password-toggle:hover {
+  background-color: var(--ios-gray-1);
+  color: var(--ios-label);
+}
+
+.password-toggle:active {
+  transform: scale(0.95);
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
 .add-user-form .submit-button {
   margin-top: var(--spacing-md);
   padding: 0.875rem 1.5rem;
