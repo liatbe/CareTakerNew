@@ -74,22 +74,7 @@
   height: 20px;
 }
 
-.add-user-form .submit-button {
-  margin-top: var(--spacing-md);
-  padding: 0.875rem 1.5rem;
-  background-color: var(--ios-blue);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 17px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.add-user-form .submit-button:hover {
-  background-color: var(--ios-blue-dark);
-}
+/* Button styles now use global .btn classes from enhanced-styles.css */
 
 .users-list {
   margin-top: var(--spacing-lg);

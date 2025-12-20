@@ -46,6 +46,25 @@
   background-color: var(--ios-gray-1);
 }
 
+.sortable-header {
+  transition: background-color 0.2s;
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.sortable-header:hover {
+  background-color: var(--ios-gray-2);
+}
+
+.sortable-header::after {
+  content: '';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+}
+
 .role-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;

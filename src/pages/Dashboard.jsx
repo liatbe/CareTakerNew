@@ -233,18 +233,76 @@ const Dashboard = () => {
   }, [t, selectedDate])
 
   const quickActions = [
-    { label: t('navigation.elderFinancials'), path: '/elder-financials' },
-    { label: t('navigation.elderExpenses'), path: '/elder-expenses' },
-    { label: t('navigation.caretakerPayslips'), path: '/caretaker-payslips' },
-    { label: t('navigation.caretakerWorklog'), path: '/caretaker-worklog' }
+    { 
+      label: t('dashboard.quickActionGeneratePayslip', 'Generate Payslip'), 
+      description: t('dashboard.quickActionGeneratePayslipDesc', 'Create monthly payslip'),
+      path: '/caretaker-payslips',
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"/>
+          <path d="M14 2V8H20"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+          <line x1="9" y1="16" x2="15" y2="16"/>
+          <line x1="12" y1="8" x2="12" y2="20"/>
+        </svg>
+      )
+    },
+    { 
+      label: t('dashboard.quickActionCalculateExpenses', 'Calculate Expenses'), 
+      description: t('dashboard.quickActionCalculateExpensesDesc', 'View financial summary'),
+      path: '/elder-expenses',
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"/>
+          <path d="M14 2V8H20"/>
+          <rect x="8" y="10" width="8" height="8" rx="1"/>
+          <path d="M10 12H14"/>
+          <path d="M10 14H14"/>
+          <path d="M10 16H12"/>
+        </svg>
+      )
+    },
+    { 
+      label: t('dashboard.quickActionLogActivity', 'Log Activity'), 
+      description: t('dashboard.quickActionLogActivityDesc', 'Add worklog entry'),
+      path: '/caretaker-worklog',
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <line x1="12" y1="14" x2="12" y2="18"/>
+          <line x1="9" y1="16" x2="15" y2="16"/>
+        </svg>
+      )
+    },
+    { 
+      label: t('dashboard.quickActionBituahLeumi', 'Bituah Leumi Portal'), 
+      description: t('dashboard.quickActionBituahLeumiDesc', 'Access external site'),
+      path: 'https://www.btl.gov.il/Pages/default.aspx',
+      external: true,
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M18 13V19A2 2 0 0 1 16 21H5A2 2 0 0 1 3 19V8A2 2 0 0 1 5 6H11"/>
+          <path d="M15 3H21V9"/>
+          <path d="M10 14L21 3"/>
+        </svg>
+      )
+    }
   ]
 
   return (
     <div className="dashboard">
-      <h1 className="page-title">{t('dashboard.title')}</h1>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{t('dashboard.title')}</h1>
+          <p className="page-subtitle">{t('dashboard.welcome', 'Welcome back! Here\'s your overview for today.')}</p>
+        </div>
+      </div>
       
       <div className="dashboard-grid">
-        <div className="dashboard-section calendar-section">
+        <div className="dashboard-section calendar-section card">
           <h2 className="section-title">{t('dashboard.calendar')}</h2>
           <Calendar 
             selectedDate={selectedDate} 
@@ -256,7 +314,7 @@ const Dashboard = () => {
           />
         </div>
         
-        <div className="dashboard-section tasks-section">
+        <div className="dashboard-section tasks-section card">
           <div className="tasks-header">
             <h2 className="section-title">{t('dashboard.openTasks')}</h2>
             <button 
@@ -285,17 +343,32 @@ const Dashboard = () => {
           )}
         </div>
         
-        <div className="dashboard-section quick-actions-section">
-          <h2 className="section-title">{t('dashboard.quickActions')}</h2>
+        <div className="dashboard-section quick-actions-section card">
+          <div>
+            <h2 className="section-title">{t('dashboard.quickActions')}</h2>
+            <p className="section-description">{t('dashboard.quickActionsDesc', 'Frequently used actions and external links')}</p>
+          </div>
           <div className="quick-actions-grid">
             {quickActions.map(action => (
-              <button
+              <div
                 key={action.path}
-                className="quick-action-button"
-                onClick={() => navigate(action.path)}
+                className="quick-action-card"
+                onClick={() => {
+                  if (action.external) {
+                    window.open(action.path, '_blank', 'noopener,noreferrer')
+                  } else {
+                    navigate(action.path)
+                  }
+                }}
               >
-                {action.label}
-              </button>
+                <div className="quick-action-icon">
+                  {action.icon}
+                </div>
+                <div className="quick-action-content">
+                  <div className="quick-action-title">{action.label}</div>
+                  <div className="quick-action-description">{action.description}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>

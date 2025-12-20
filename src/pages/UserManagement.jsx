@@ -110,7 +110,7 @@ const UserManagement = () => {
         <div className="card-header">
           <h2>{t('userManagement.familyUsers', 'Family Users')}</h2>
           <button 
-            className="add-user-button" 
+            className={`btn ${showAddForm ? 'btn-secondary' : 'btn-primary'}`}
             onClick={() => setShowAddForm(!showAddForm)}
           >
             {showAddForm ? t('common.cancel') : t('userManagement.addUser', 'Add User')}
@@ -165,7 +165,7 @@ const UserManagement = () => {
                 <option value="caretaker">{t('userManagement.roleCaretaker', 'Caretaker')}</option>
               </select>
             </div>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="btn btn-primary">
               {t('userManagement.addUser', 'Add User')}
             </button>
           </form>

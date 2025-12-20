@@ -99,40 +99,39 @@ const ElderFinancials = () => {
 
   return (
     <div className="elder-financials">
-      <h1 className="page-title">{t('elderFinancials.title')}</h1>
-      <p className="page-subtitle">{t('elderFinancials.subtitle')}</p>
-      
-      <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
-      
-      <div className="content-card">
-        <div className="card-header">
-          <h2>{t('elderFinancials.title')}</h2>
-          <button className="export-button" onClick={handleExport}>
-            {t('common.export')}
-          </button>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{t('elderFinancials.title')}</h1>
+          <p className="page-subtitle">{t('elderFinancials.subtitle')}</p>
         </div>
-        
-        <div className="add-entry-form">
-          <input
-            type="text"
-            placeholder={t('elderFinancials.entryName')}
-            value={newEntry.name}
-            onChange={(e) => setNewEntry({ ...newEntry, name: e.target.value })}
-          />
-          <input
-            type="number"
-            placeholder={t('common.amount')}
-            value={newEntry.amount}
-            onChange={(e) => setNewEntry({ ...newEntry, amount: e.target.value })}
-            step="0.01"
-          />
-          <button className="add-button" onClick={handleAdd}>
-            {t('common.add')}
-          </button>
+        <div className="page-header-actions">
+          <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        </div>
+      </div>
+      
+      <div className="content-card card">
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">{t('elderFinancials.title')} {currentMonthKey}</h2>
+          </div>
+          <div className="card-actions">
+            <button className="btn btn-primary" onClick={handleAdd}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+              </svg>
+              {t('elderFinancials.addEntry')}
+            </button>
+            <button className="btn btn-success" onClick={handleExport}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="currentColor"/>
+              </svg>
+              {t('common.export')}
+            </button>
+          </div>
         </div>
         
         <div className="entries-table">
-          <table>
+          <table className="table">
             <thead>
               <tr>
                 <th>{t('elderFinancials.entryName')}</th>
@@ -207,7 +206,7 @@ const ElderFinancials = () => {
             <tfoot>
               <tr>
                 <td><strong>{t('elderFinancials.monthlyTotal')}</strong></td>
-                <td><strong>{total.toFixed(2)} ₪</strong></td>
+                <td><strong className="summary-value">{total.toFixed(2)} ₪</strong></td>
                 <td colSpan="2"></td>
               </tr>
             </tfoot>

@@ -111,17 +111,35 @@ const ElderExpenses = () => {
 
   return (
     <div className="elder-expenses">
-      <h1 className="page-title">{t('elderExpenses.title')}</h1>
-      <p className="page-subtitle">{t('elderExpenses.subtitle')}</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{t('elderExpenses.title')}</h1>
+          <p className="page-subtitle">{t('elderExpenses.subtitle')}</p>
+        </div>
+        <div className="page-header-actions">
+          <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        </div>
+      </div>
       
-      <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
-      
-      <div className="content-card">
+      <div className="content-card card">
         <div className="card-header">
-          <h2>{t('elderExpenses.title')}</h2>
-          <button className="export-button" onClick={handleExport}>
-            {t('common.export')}
-          </button>
+          <div>
+            <h2 className="card-title">{t('elderExpenses.title')} {currentMonthKey}</h2>
+          </div>
+          <div className="card-actions">
+            <button className="btn btn-primary" onClick={handleAdd}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+              </svg>
+              {t('elderExpenses.addEntry')}
+            </button>
+            <button className="btn btn-success" onClick={handleExport}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="currentColor"/>
+              </svg>
+              {t('common.export')}
+            </button>
+          </div>
         </div>
         
         <div className="add-entry-form">
@@ -155,13 +173,13 @@ const ElderExpenses = () => {
               step="0.1"
             />
           )}
-          <button className="add-button" onClick={handleAdd}>
+          <button className="btn btn-primary" onClick={handleAdd}>
             {t('common.add')}
           </button>
         </div>
         
         <div className="entries-table">
-          <table>
+          <table className="table">
             <thead>
               <tr>
                 <th>{t('elderExpenses.entryName')}</th>
@@ -282,9 +300,9 @@ const ElderExpenses = () => {
           </table>
         </div>
         
-        <div className={`bottom-line ${bottomLine >= 0 ? 'positive' : 'negative'}`}>
-          <div className="bottom-line-label">{t('elderExpenses.bottomLine')}</div>
-          <div className="bottom-line-amount">
+        <div className={`bottom-line summary-card ${bottomLine >= 0 ? 'positive' : 'negative'}`}>
+          <div className="summary-label">{t('elderExpenses.bottomLine')}</div>
+          <div className={`summary-value bottom-line-amount ${bottomLine >= 0 ? 'positive' : 'negative'}`}>
             {bottomLine >= 0 ? '+' : ''}{bottomLine.toFixed(2)} ₪
           </div>
           <div className="bottom-line-status">

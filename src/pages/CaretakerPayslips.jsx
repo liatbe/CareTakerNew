@@ -547,49 +547,76 @@ const CaretakerPayslips = () => {
 
   return (
     <div className="caretaker-payslips">
-      <h1 className="page-title">{t('caretakerPayslips.title')}</h1>
-      
-      <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
-      
-      <div className="content-card">
-        <div className="card-header">
-          <h2>{t('caretakerPayslips.title')}</h2>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{t('caretakerPayslips.title')}</h1>
+          <p className="page-subtitle">{t('caretakerPayslips.subtitle', 'Monthly and yearly payment breakdown for the caretaker')}</p>
+        </div>
+        <div className="page-header-actions">
+          <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
           {!isReadOnly && (
-            <button className="export-button" onClick={handleExport}>
+            <button className="btn btn-success" onClick={handleExport}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="currentColor"/>
+              </svg>
               {t('common.export')}
             </button>
           )}
         </div>
-        
-        <div className="contract-info">
-          <div className="info-row">
-            <label>{t('caretakerPayslips.contractStartDate')}:</label>
-            <input
-              type="date"
-              value={contractStartDate}
-              onChange={(e) => {
-                setContractStartDate(e.target.value)
-                storage.set('contractStartDate', e.target.value)
-              }}
-              disabled={isReadOnly}
-            />
-          </div>
-          <div className="info-row">
-            <label>{t('caretakerPayslips.monthlyBaseAmount')} ({currentYear}):</label>
-            {editingYear === currentYear ? (
+      </div>
+      
+      <div className="content-card card">
+        <div className="contract-info" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: 'var(--spacing-xl)' }}>
+          <div className="info-card">
+            <div className="info-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V9H19V20ZM7 11H9V13H7V11ZM11 11H13V13H11V11ZM15 11H17V13H15V11Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div className="info-card-content">
+              <div className="info-card-label">{t('caretakerPayslips.contractStartDate')}</div>
               <input
-                type="number"
-                value={baseAmount}
-                onChange={(e) => handleYearlyBaseAmountChange(currentYear, e.target.value)}
-                onBlur={() => setEditingYear(null)}
-                step="0.01"
+                type="date"
+                value={contractStartDate}
+                onChange={(e) => {
+                  setContractStartDate(e.target.value)
+                  storage.set('contractStartDate', e.target.value)
+                }}
                 disabled={isReadOnly}
+                className="info-card-value"
+                style={{ border: 'none', background: 'transparent', padding: 0, fontSize: '17px', fontWeight: 600 }}
               />
-            ) : (
-              <span onClick={() => !isReadOnly && setEditingYear(currentYear)} style={{ cursor: isReadOnly ? 'default' : 'pointer' }}>
-                {baseAmount.toFixed(2)} ₪
-              </span>
-            )}
+            </div>
+          </div>
+          <div className="info-card">
+            <div className="info-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.8 10.9C9.53 10.31 8.8 9.7 8.8 8.75C8.8 7.66 9.81 6.9 11.5 6.9C13.28 6.9 13.94 7.75 14 9H16.21C16.14 7.28 15.09 5.7 13 5.19V3H10V5.16C8.06 5.58 6.5 6.84 6.5 8.77C6.5 11.08 8.41 12.23 11.2 12.9C13.7 13.5 14.2 14.38 14.2 15.31C14.2 16 13.71 17.1 11.5 17.1C9.28 17.1 8.63 16.18 8.5 15H6.32C6.44 17.18 7.76 18.5 10 18.93V21H13V18.91C14.97 18.5 16.5 17.35 16.5 15.3C16.5 12.46 14.07 11.5 11.8 10.9Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div className="info-card-content">
+              <div className="info-card-label">{t('caretakerPayslips.monthlyBaseAmount')} ({currentYear})</div>
+              {editingYear === currentYear ? (
+                <input
+                  type="number"
+                  value={baseAmount}
+                  onChange={(e) => handleYearlyBaseAmountChange(currentYear, e.target.value)}
+                  onBlur={() => setEditingYear(null)}
+                  step="0.01"
+                  disabled={isReadOnly}
+                  className="info-card-value"
+                  style={{ border: 'none', background: 'transparent', padding: 0, fontSize: '17px', fontWeight: 600 }}
+                />
+              ) : (
+                <span 
+                  className="info-card-value"
+                  onClick={() => !isReadOnly && setEditingYear(currentYear)} 
+                  style={{ cursor: isReadOnly ? 'default' : 'pointer', fontSize: '17px', fontWeight: 600 }}
+                >
+                  {baseAmount.toFixed(2)} ₪
+                </span>
+              )}
+            </div>
           </div>
         </div>
         
@@ -642,7 +669,7 @@ const CaretakerPayslips = () => {
               <select 
                 value={paymentStatus} 
                 onChange={(e) => handlePaymentStatusChange(e.target.value)}
-                className={`status-select status-${paymentStatus}`}
+                className={`status-select status-${paymentStatus} status-badge status-badge-${paymentStatus}`}
                 disabled={isReadOnly}
               >
                 <option value="paid">{t('common.paid')}</option>

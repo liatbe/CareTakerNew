@@ -64,20 +64,7 @@
   border-color: #3498db;
 }
 
-.add-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-}
-
-.add-button:hover {
-  background-color: #2980b9;
-}
+/* Button styles now use global .btn classes from enhanced-styles.css */
 
 .entries-table {
   overflow-x: auto;

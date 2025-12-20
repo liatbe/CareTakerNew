@@ -66,6 +66,50 @@
   z-index: 1;
 }
 
+.login-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.login-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--ios-blue);
+  flex-shrink: 0;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.875rem;
+  width: 20px;
+  height: 20px;
+  color: var(--ios-label-secondary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-with-icon-field {
+  padding-left: 2.75rem !important;
+}
+
+.password-input-wrapper.input-with-icon .input-icon {
+  left: 0.875rem;
+}
+
+.password-input-wrapper.input-with-icon .input-with-icon-field {
+  padding-left: 2.75rem !important;
+  padding-right: 3rem !important;
+}
+
 .login-title {
   text-align: center;
   color: var(--ios-label);
@@ -262,9 +306,18 @@
 }
 
 .login-demo {
+  background-color: rgba(0, 122, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: 13px;
-  color: var(--ios-label-tertiary);
+  color: var(--ios-label-secondary);
   margin-top: var(--spacing-sm);
+  text-align: center;
+}
+
+.login-demo strong {
+  color: var(--ios-label);
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {

@@ -5,6 +5,7 @@ import { login, isAuthenticated, register, getUserRole } from '../utils/auth'
 import { initializeData } from '../utils/storage'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import './Login.css'
+import '../styles/enhanced-styles.css'
 
 const Login = () => {
   const { t } = useTranslation()
@@ -147,8 +148,14 @@ const Login = () => {
       <div className="login-language-switcher">
         <LanguageSwitcher />
       </div>
-      <div className="login-box">
-        <h1 className="login-title">{t('login.title')}</h1>
+      <div className="login-box card">
+        <div className="login-header">
+          <svg className="login-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor"/>
+            <path d="M7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H13V17H7V15Z" fill="currentColor"/>
+          </svg>
+          <h1 className="login-title">{t('login.title')}</h1>
+        </div>
         <p className="login-subtitle">{t('login.subtitle')}</p>
         
         {!showRegister ? (
@@ -156,20 +163,31 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">
                 <label htmlFor="username">{t('login.username')}</label>
-                <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  autoComplete="username"
-                />
+                <div className="input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    autoComplete="username"
+                    className="input-with-icon-field"
+                  />
+                </div>
                 <small className="form-hint">{t('login.usernameEnglishHint', 'Username must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               <div className="form-group">
                 <label htmlFor="password">{t('login.password')}</label>
-                <div className="password-input-wrapper">
+                <div className="password-input-wrapper input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -177,6 +195,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
+                    className="input-with-icon-field"
                   />
                   <button
                     type="button"
@@ -202,7 +221,7 @@ const Login = () => {
               
               {error && <div className="error-message">{error}</div>}
               
-              <button type="submit" className="login-button" disabled={loading}>
+              <button type="submit" className="login-button btn btn-primary" disabled={loading}>
                 {loading ? '...' : t('login.loginButton')}
               </button>
             </form>
@@ -222,7 +241,7 @@ const Login = () => {
                 </button>
               </p>
               <div className="login-demo">
-                <p>Demo credentials: family1 / family1</p>
+                <p><strong>Demo credentials:</strong> family1 / family1</p>
               </div>
             </div>
           </>
@@ -231,32 +250,50 @@ const Login = () => {
             <form onSubmit={handleRegister} className="login-form">
               <div className="form-group">
                 <label htmlFor="registerName">{t('login.name')}</label>
-                <input
-                  id="registerName"
-                  type="text"
-                  value={registerName}
-                  onChange={(e) => setRegisterName(e.target.value)}
-                  required
-                  autoComplete="name"
-                />
+                <div className="input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input
+                    id="registerName"
+                    type="text"
+                    value={registerName}
+                    onChange={(e) => setRegisterName(e.target.value)}
+                    required
+                    autoComplete="name"
+                    className="input-with-icon-field"
+                  />
+                </div>
               </div>
               
               <div className="form-group">
                 <label htmlFor="registerUsername">{t('login.username')}</label>
-                <input
-                  id="registerUsername"
-                  type="text"
-                  value={registerUsername}
-                  onChange={(e) => setRegisterUsername(e.target.value)}
-                  required
-                  autoComplete="username"
-                />
+                <div className="input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input
+                    id="registerUsername"
+                    type="text"
+                    value={registerUsername}
+                    onChange={(e) => setRegisterUsername(e.target.value)}
+                    required
+                    autoComplete="username"
+                    className="input-with-icon-field"
+                  />
+                </div>
                 <small className="form-hint">{t('login.usernameEnglishHint', 'Username must be in English (letters, numbers, and symbols only)')}</small>
               </div>
               
               <div className="form-group">
                 <label htmlFor="registerPassword">{t('login.password')}</label>
-                <div className="password-input-wrapper">
+                <div className="password-input-wrapper input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
                   <input
                     id="registerPassword"
                     type={showRegisterPassword ? "text" : "password"}
@@ -264,6 +301,7 @@ const Login = () => {
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     required
                     autoComplete="new-password"
+                    className="input-with-icon-field"
                   />
                   <button
                     type="button"
@@ -289,7 +327,11 @@ const Login = () => {
               
               <div className="form-group">
                 <label htmlFor="registerConfirmPassword">{t('login.confirmPassword')}</label>
-                <div className="password-input-wrapper">
+                <div className="password-input-wrapper input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
                   <input
                     id="registerConfirmPassword"
                     type={showRegisterConfirmPassword ? "text" : "password"}
@@ -297,6 +339,7 @@ const Login = () => {
                     onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                     required
                     autoComplete="new-password"
+                    className="input-with-icon-field"
                   />
                   <button
                     type="button"
@@ -321,32 +364,48 @@ const Login = () => {
               
               <div className="form-group">
                 <label htmlFor="registerContractStartDate">{t('login.contractStartDate')}</label>
-                <input
-                  id="registerContractStartDate"
-                  type="date"
-                  value={registerContractStartDate}
-                  onChange={(e) => setRegisterContractStartDate(e.target.value)}
-                  required
-                />
+                <div className="input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <input
+                    id="registerContractStartDate"
+                    type="date"
+                    value={registerContractStartDate}
+                    onChange={(e) => setRegisterContractStartDate(e.target.value)}
+                    required
+                    className="input-with-icon-field"
+                  />
+                </div>
               </div>
               
               <div className="form-group">
                 <label htmlFor="registerMonthlyBaseAmount">{t('login.monthlyBaseAmount')}</label>
-                <input
-                  id="registerMonthlyBaseAmount"
-                  type="number"
-                  value={registerMonthlyBaseAmount}
-                  onChange={(e) => setRegisterMonthlyBaseAmount(e.target.value)}
-                  required
-                  step="0.01"
-                  min="0"
-                />
-                <span className="currency-hint">₪</span>
+                <div className="input-with-icon">
+                  <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                  <input
+                    id="registerMonthlyBaseAmount"
+                    type="number"
+                    value={registerMonthlyBaseAmount}
+                    onChange={(e) => setRegisterMonthlyBaseAmount(e.target.value)}
+                    required
+                    step="0.01"
+                    min="0"
+                    className="input-with-icon-field"
+                  />
+                  <span className="currency-hint">₪</span>
+                </div>
               </div>
               
               {error && <div className="error-message">{error}</div>}
               
-              <button type="submit" className="login-button" disabled={loading}>
+              <button type="submit" className="login-button btn btn-primary" disabled={loading}>
                 {loading ? '...' : t('login.registerButton')}
               </button>
             </form>

@@ -29,28 +29,7 @@
   letter-spacing: -0.01em;
 }
 
-.export-button {
-  background-color: var(--ios-green);
-  color: white;
-  border: none;
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(52, 199, 89, 0.3);
-}
-
-.export-button:hover {
-  background-color: #30D158;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(52, 199, 89, 0.4);
-}
-
-.export-button:active {
-  transform: translateY(0);
-}
+/* Button styles now use global .btn classes from enhanced-styles.css */
 
 .contract-info {
   background-color: var(--ios-secondary-background);
