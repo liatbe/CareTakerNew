@@ -37,10 +37,10 @@ const getFamilyId = () => {
 
 // API client
 const api = {
-  // Generic GET request
+  // Generic GET request - always uses backend if configured
   async get(key) {
     if (FALLBACK_TO_LOCALSTORAGE) {
-      // Fallback to localStorage
+      // Only fallback if backend is not configured
       const data = localStorage.getItem(`caretaker_${getFamilyId()}_${key}`)
       return data ? JSON.parse(data) : null
     }
@@ -72,17 +72,16 @@ const api = {
       }
       return null
     } catch (error) {
-      console.error(`Error fetching ${key}:`, error)
-      // Fallback to localStorage on error
-      const data = localStorage.getItem(`caretaker_${getFamilyId()}_${key}`)
-      return data ? JSON.parse(data) : null
+      console.error(`Error fetching ${key} from backend:`, error)
+      // Don't fallback to localStorage - return null so caller knows data is not available
+      return null
     }
   },
 
-  // Generic SET request
+  // Generic SET request - always uses backend if configured
   async set(key, value) {
     if (FALLBACK_TO_LOCALSTORAGE) {
-      // Fallback to localStorage
+      // Only fallback if backend is not configured
       localStorage.setItem(`caretaker_${getFamilyId()}_${key}`, JSON.stringify(value))
       return true
     }
@@ -113,7 +112,7 @@ const api = {
         body: JSON.stringify(payload)
       })
 
-      // If update fails (404), insert new record
+      // If update fails (404 or other error), insert new record
       if (updateResponse.status === 404 || !updateResponse.ok) {
         const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/family_data`, {
           method: 'POST',
@@ -133,22 +132,16 @@ const api = {
 
       return true
     } catch (error) {
-      console.error(`Error saving ${key}:`, error)
-      // Fallback to localStorage on error
-      try {
-        localStorage.setItem(`caretaker_${getFamilyId()}_${key}`, JSON.stringify(value))
-        return true
-      } catch (e) {
-        console.error('localStorage fallback also failed:', e)
-        return false
-      }
+      console.error(`Error saving ${key} to backend:`, error)
+      // Don't fallback to localStorage - return false so caller knows save failed
+      return false
     }
   },
 
-  // Generic REMOVE request
+  // Generic REMOVE request - always uses backend if configured
   async remove(key) {
     if (FALLBACK_TO_LOCALSTORAGE) {
-      // Fallback to localStorage
+      // Only fallback if backend is not configured
       localStorage.removeItem(`caretaker_${getFamilyId()}_${key}`)
       return true
     }
@@ -170,10 +163,9 @@ const api = {
 
       return response.ok
     } catch (error) {
-      console.error(`Error removing ${key}:`, error)
-      // Fallback to localStorage
-      localStorage.removeItem(`caretaker_${getFamilyId()}_${key}`)
-      return true
+      console.error(`Error removing ${key} from backend:`, error)
+      // Don't fallback - return false so caller knows remove failed
+      return false
     }
   },
 
