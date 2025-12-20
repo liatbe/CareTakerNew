@@ -69,21 +69,23 @@ const CaretakerPayslips = () => {
     }
   }
 
-  const savePayslip = (data) => {
+  const savePayslip = async (data) => {
     const payslips = storage.get('payslips', {})
     payslips[currentMonthKey] = data
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
   }
 
-  const handleYearlyBaseAmountChange = (year, amount) => {
+  const handleYearlyBaseAmountChange = async (year, amount) => {
     const updated = { ...yearlyBaseAmounts, [year]: parseFloat(amount) || 6250 }
     setYearlyBaseAmounts(updated)
-    storage.set('yearlyBaseAmounts', updated)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('yearlyBaseAmounts', updated)
     
     // Update monthly base amount if it's the current year
     if (parseInt(year) === currentYear) {
       setMonthlyBaseAmount(parseFloat(amount) || 6250)
-      storage.set('monthlyBaseAmount', parseFloat(amount) || 6250)
+      await storage.setToBackend('monthlyBaseAmount', parseFloat(amount) || 6250)
     }
   }
 
@@ -203,7 +205,7 @@ const CaretakerPayslips = () => {
     return payments
   }
 
-  const handlePaymentStatusChange = (status) => {
+  const handlePaymentStatusChange = async (status) => {
     setPaymentStatus(status)
     const payslips = storage.get('payslips', {})
     if (!payslips[currentMonthKey]) {
@@ -215,10 +217,11 @@ const CaretakerPayslips = () => {
       payslips[currentMonthKey].monthlyPaidAmount = 0
       setMonthlyPaidAmount(0)
     }
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
   }
 
-  const handleMonthlyPaidAmountChange = (amount) => {
+  const handleMonthlyPaidAmountChange = async (amount) => {
     const paidAmount = parseFloat(amount) || 0
     setMonthlyPaidAmount(paidAmount)
     const payslips = storage.get('payslips', {})
@@ -226,10 +229,11 @@ const CaretakerPayslips = () => {
       payslips[currentMonthKey] = {}
     }
     payslips[currentMonthKey].monthlyPaidAmount = paidAmount
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
   }
 
-  const handleMonthlyPaymentStatusChange = (paymentId, status) => {
+  const handleMonthlyPaymentStatusChange = async (paymentId, status) => {
     const payslips = storage.get('payslips', {})
     if (!payslips[currentMonthKey]) {
       payslips[currentMonthKey] = {}
@@ -248,11 +252,12 @@ const CaretakerPayslips = () => {
       delete updated[paymentId]
       setMonthlyPaymentPaidAmounts(updated)
     }
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
     loadData() // Reload to update UI
   }
 
-  const handleMonthlyPaymentPaidAmountChange = (paymentId, amount) => {
+  const handleMonthlyPaymentPaidAmountChange = async (paymentId, amount) => {
     const paidAmount = parseFloat(amount) || 0
     const updated = { ...monthlyPaymentPaidAmounts, [paymentId]: paidAmount }
     setMonthlyPaymentPaidAmounts(updated)
@@ -264,10 +269,11 @@ const CaretakerPayslips = () => {
       payslips[currentMonthKey].monthlyPaymentPaidAmounts = {}
     }
     payslips[currentMonthKey].monthlyPaymentPaidAmounts[paymentId] = paidAmount
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
   }
 
-  const handleYearlyPaymentStatusChange = (paymentKey, status) => {
+  const handleYearlyPaymentStatusChange = async (paymentKey, status) => {
     if (!contractStartDate) return
     
     const yearKey = `year_${selectedContractYear}`
@@ -295,11 +301,12 @@ const CaretakerPayslips = () => {
       delete updated[paymentKey]
       setYearlyPaymentPaidAmounts(updated)
     }
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
     loadData() // Reload to update UI
   }
 
-  const handleYearlyPaymentPaidAmountChange = (paymentKey, amount) => {
+  const handleYearlyPaymentPaidAmountChange = async (paymentKey, amount) => {
     const paidAmount = parseFloat(amount) || 0
     const yearKey = `year_${selectedContractYear}`
     const updated = { ...yearlyPaymentPaidAmounts, [paymentKey]: paidAmount }
@@ -315,7 +322,8 @@ const CaretakerPayslips = () => {
       payslips[currentMonthKey].yearlyPaymentPaidAmounts[yearKey] = {}
     }
     payslips[currentMonthKey].yearlyPaymentPaidAmounts[yearKey][paymentKey] = paidAmount
-    storage.set('payslips', payslips)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('payslips', payslips)
   }
 
   const handleExport = () => {

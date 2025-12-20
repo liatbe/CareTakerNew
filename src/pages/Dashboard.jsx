@@ -178,7 +178,7 @@ const Dashboard = () => {
     setCalendarEvents(allActivities)
   }
 
-  const handleAddActivityFromCalendar = (activity) => {
+  const handleAddActivityFromCalendar = async (activity) => {
     const worklog = storage.get('worklog', {})
     const monthKey = getMonthKey(parseISO(activity.date))
     
@@ -192,17 +192,19 @@ const Dashboard = () => {
     }
     
     worklog[monthKey].push(newActivity)
-    storage.set('worklog', worklog)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('worklog', worklog)
     loadCalendarEvents()
   }
 
-  const handleDeleteActivityFromCalendar = (activityId) => {
+  const handleDeleteActivityFromCalendar = async (activityId) => {
     if (window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this activity?'))) {
       const worklog = storage.get('worklog', {})
       Object.keys(worklog).forEach(monthKey => {
         worklog[monthKey] = worklog[monthKey].filter(a => a.id !== activityId)
       })
-      storage.set('worklog', worklog)
+      // Use setToBackend to ensure data persists to backend
+      await storage.setToBackend('worklog', worklog)
       loadCalendarEvents()
       loadTasks() // Refresh tasks as well
     }

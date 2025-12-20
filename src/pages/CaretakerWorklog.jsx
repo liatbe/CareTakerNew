@@ -50,7 +50,7 @@ const CaretakerWorklog = () => {
     setActivities(allActivities)
   }
 
-  const saveActivity = (activity) => {
+  const saveActivity = async (activity) => {
     const worklog = storage.get('worklog', {})
     const monthKey = getMonthKey(parseISO(activity.date))
     
@@ -64,7 +64,8 @@ const CaretakerWorklog = () => {
     }
     
     worklog[monthKey].push(newActivity)
-    storage.set('worklog', worklog)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('worklog', worklog)
     
     // Log action for caretakers
     logAction('add_activity', {
@@ -89,7 +90,7 @@ const CaretakerWorklog = () => {
     saveActivity(activity)
   }
 
-  const handleDeleteActivity = (id) => {
+  const handleDeleteActivity = async (id) => {
     if (window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this activity?'))) {
       const worklog = storage.get('worklog', {})
       let deletedActivity = null
@@ -101,7 +102,8 @@ const CaretakerWorklog = () => {
         worklog[monthKey] = worklog[monthKey].filter(a => a.id !== id)
       })
       
-      storage.set('worklog', worklog)
+      // Use setToBackend to ensure data persists to backend
+      await storage.setToBackend('worklog', worklog)
       
       // Log action for caretakers
       if (deletedActivity) {

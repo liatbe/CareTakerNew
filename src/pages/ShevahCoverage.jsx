@@ -41,10 +41,11 @@ const ShevahCoverage = () => {
     setRows(monthData)
   }
 
-  const saveRows = (newRows) => {
+  const saveRows = async (newRows) => {
     const data = storage.get('shevahCoverage', {})
     data[currentMonthKey] = newRows
-    storage.set('shevahCoverage', data)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('shevahCoverage', data)
     setRows(newRows)
   }
 

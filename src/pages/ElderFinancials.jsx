@@ -37,10 +37,11 @@ const ElderFinancials = () => {
     setEntries(monthData)
   }
 
-  const saveEntries = (newEntries) => {
+  const saveEntries = async (newEntries) => {
     const data = storage.get('elderFinancials', {})
     data[currentMonthKey] = newEntries
-    storage.set('elderFinancials', data)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('elderFinancials', data)
     setEntries(newEntries)
   }
 
