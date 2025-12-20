@@ -63,9 +63,21 @@ function App() {
         return storage.viewAll()
       }
       
+      window.testBackend = async () => {
+        const result = await storage.testBackend()
+        console.log('Backend Test Result:', result)
+        if (!result.available) {
+          alert(`Backend test failed: ${result.error}\n\nPlease check:\n1. Supabase table 'family_data' exists\n2. Environment variables are set correctly\n3. You are logged in\n4. Check browser console for details`)
+        } else {
+          alert(`Backend is working! Family ID: ${result.familyId}`)
+        }
+        return result
+      }
+      
       console.log('💡 Debug helpers available:')
       console.log('  - testStorage() - Test if localStorage is working')
       console.log('  - viewStorage() - View all stored data for current family')
+      console.log('  - testBackend() - Test backend connection and data saving')
     }
 
     // Initialize data structure when app loads

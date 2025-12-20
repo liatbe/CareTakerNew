@@ -203,10 +203,15 @@ export const storage = {
           console.log(`💾 [Storage SET - Backend] ${key} synced successfully`)
         }
       } else {
-        console.error(`💾 [Storage SET - Backend] ${key} sync failed`)
+        console.error(`💾 [Storage SET - Backend] ${key} sync failed - check console for details`)
+        console.error(`   Family ID: ${getFamilyId()}`)
+        console.error(`   Key: ${key}`)
+        console.error(`   Value type: ${typeof value}`)
       }
     }).catch(error => {
       console.error(`Backend sync error for ${key}:`, error)
+      console.error(`   Family ID: ${getFamilyId()}`)
+      console.error(`   Full error:`, error.message || error)
     })
     
     return true
@@ -214,29 +219,54 @@ export const storage = {
   
   // SET to backend (async) - use this when you need to ensure backend save completes
   setToBackend: async (key, value) => {
+    console.log(`🔵 [Storage setToBackend] Called for key: ${key}`)
+    console.log(`   USE_BACKEND: ${USE_BACKEND}`)
+    console.log(`   SUPABASE_URL: ${SUPABASE_URL ? '✅ set' : '❌ missing'}`)
+    console.log(`   SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY ? '✅ set' : '❌ missing'}`)
+    
     // Update cache first
     if (isLocalStorageAvailable()) {
       try {
         const storageKey = getStorageKey(key)
         localStorage.setItem(storageKey, JSON.stringify(value))
+        console.log(`   ✅ Updated localStorage cache for ${key}`)
       } catch (e) {
-        console.error(`Error updating cache for ${key}:`, e)
+        console.error(`   ❌ Error updating cache for ${key}:`, e)
       }
     }
     
     // Save to backend (source of truth)
     if (!USE_BACKEND) {
+      console.warn(`⚠️ [Storage SET - Backend] Backend not configured. USE_BACKEND=${USE_BACKEND}, SUPABASE_URL=${SUPABASE_URL ? 'set' : 'missing'}, SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY ? 'set' : 'missing'}`)
       return true
     }
     
+    console.log(`   ✅ Backend is configured, proceeding with save...`)
+    
     try {
+      const familyId = getFamilyId()
+      if (!familyId || familyId === 'default') {
+        console.error(`❌ [Storage SET - Backend] No family ID found. Cannot save ${key} to backend.`)
+        return false
+      }
+      
+      if (DEBUG_STORAGE) {
+        console.log(`💾 [Storage SET - Backend (async)] Attempting to save ${key} for family ${familyId}`)
+      }
+      
       const success = await syncToBackend('set', key, value)
       if (DEBUG_STORAGE) {
         console.log(`💾 [Storage SET - Backend (async)] ${key} ${success ? 'synced' : 'failed'}`)
       }
+      
+      if (!success) {
+        console.error(`❌ [Storage SET - Backend (async)] Failed to save ${key} to backend`)
+      }
+      
       return success
     } catch (error) {
-      console.error(`Backend save error for ${key}:`, error)
+      console.error(`❌ [Storage SET - Backend (async)] Error saving ${key}:`, error)
+      console.error(`   Error details:`, error.message || error)
       return false
     }
   },
@@ -395,6 +425,50 @@ export const storage = {
     
     console.log(`📦 [Storage] All data for family "${familyId}":`, data)
     return { familyId, data, keys: familyKeys }
+  },
+  
+  // Test backend connection and data saving
+  testBackend: async () => {
+    if (!USE_BACKEND) {
+      return { available: false, error: 'Backend not configured (missing env variables)' }
+    }
+    
+    try {
+      const familyId = getFamilyId()
+      if (!familyId || familyId === 'default') {
+        return { available: false, error: 'No family ID found. Please log in first.' }
+      }
+      
+      // Test write
+      const testKey = '__backend_test__'
+      const testValue = { test: true, timestamp: Date.now() }
+      const writeSuccess = await api.set(testKey, testValue)
+      
+      if (!writeSuccess) {
+        return { available: false, error: 'Failed to write test data to backend' }
+      }
+      
+      // Test read
+      const readValue = await api.get(testKey)
+      if (!readValue || !readValue.test) {
+        return { available: false, error: 'Failed to read test data from backend' }
+      }
+      
+      // Clean up
+      await api.remove(testKey)
+      
+      return { 
+        available: true, 
+        familyId: familyId,
+        message: 'Backend connection working correctly'
+      }
+    } catch (error) {
+      return { 
+        available: false, 
+        error: error.message || 'Backend test failed',
+        details: error
+      }
+    }
   },
   
   // Diagnostic function to test storage

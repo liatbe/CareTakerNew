@@ -35,7 +35,25 @@ const Settings = () => {
   })
 
   useEffect(() => {
-    loadSettings()
+    // Wait a bit for App.jsx syncAllFromBackend to complete, then load settings
+    // This ensures we get the latest data from backend
+    const loadSettingsAfterSync = async () => {
+      // Small delay to allow App.jsx syncAllFromBackend to start
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // If backend is configured, ensure sync is complete
+      if (storage.syncAllFromBackend) {
+        try {
+          await storage.syncAllFromBackend()
+        } catch (error) {
+          console.error('Error syncing from backend in Settings:', error)
+        }
+      }
+      // Then load settings
+      loadSettings()
+    }
+    
+    loadSettingsAfterSync()
   }, [])
 
   const loadSettings = () => {
@@ -80,7 +98,7 @@ const Settings = () => {
         yearly.havraaDays = 5
       }
       
-      // Save back if we added defaults
+      // Save back if we added defaults (use set for initialization, not critical)
       if (!yearlyPaymentsData[yearKey]) {
         yearlyPaymentsData[yearKey] = yearly
         storage.set('yearlyPayments', yearlyPaymentsData)
@@ -113,14 +131,16 @@ const Settings = () => {
     }
   }
 
-  const handleFamilyNameChange = (name) => {
+  const handleFamilyNameChange = async (name) => {
     setFamilyName(name)
-    storage.set('familyName', name)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('familyName', name)
   }
 
-  const handleContractStartDateChange = (date) => {
+  const handleContractStartDateChange = async (date) => {
     setContractStartDate(date)
-    storage.set('contractStartDate', date)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('contractStartDate', date)
     
     // Reload yearly payments for new contract year
     if (date) {
@@ -159,19 +179,21 @@ const Settings = () => {
     }
   }
 
-  const handleMonthlyBaseAmountChange = (amount) => {
+  const handleMonthlyBaseAmountChange = async (amount) => {
     const value = parseFloat(amount) || 0
     setMonthlyBaseAmount(value)
-    storage.set('monthlyBaseAmount', value)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('monthlyBaseAmount', value)
   }
 
-  const handleActivityChargeChange = (key, value) => {
+  const handleActivityChargeChange = async (key, value) => {
     const updated = { ...activityCharges, [key]: parseFloat(value) || 0 }
     setActivityCharges(updated)
-    storage.set('activityCharges', updated)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('activityCharges', updated)
   }
 
-  const handleYearlyPaymentChange = (key, value) => {
+  const handleYearlyPaymentChange = async (key, value) => {
     const updated = { ...yearlyPayments, [key]: parseFloat(value) || 0 }
     setYearlyPayments(updated)
     
@@ -180,9 +202,11 @@ const Settings = () => {
       const yearKey = `year_${selectedContractYear}`
       const yearlyPaymentsData = storage.get('yearlyPayments', {})
       yearlyPaymentsData[yearKey] = updated
-      storage.set('yearlyPayments', yearlyPaymentsData)
+      // Use setToBackend to ensure data persists to backend
+      await storage.setToBackend('yearlyPayments', yearlyPaymentsData)
     } else {
-      storage.set('yearlyPayments', updated)
+      // Use setToBackend to ensure data persists to backend
+      await storage.setToBackend('yearlyPayments', updated)
     }
   }
 
@@ -209,10 +233,14 @@ const Settings = () => {
     // Save back if we added defaults
     if (!yearlyPaymentsData[yearKey]) {
       yearlyPaymentsData[yearKey] = yearly
-      storage.set('yearlyPayments', yearlyPaymentsData)
+      storage.setToBackend('yearlyPayments', yearlyPaymentsData).catch(err => {
+        console.error('Error saving yearlyPayments:', err)
+      })
     } else if (!yearlyPaymentsData[yearKey].havraaAmountPerDay || !yearlyPaymentsData[yearKey].havraaDays) {
       yearlyPaymentsData[yearKey] = yearly
-      storage.set('yearlyPayments', yearlyPaymentsData)
+      storage.setToBackend('yearlyPayments', yearlyPaymentsData).catch(err => {
+        console.error('Error saving yearlyPayments:', err)
+      })
     }
     
     // Remove bituahLeumi if it exists (for backward compatibility)
@@ -290,10 +318,11 @@ const Settings = () => {
     })
   }
 
-  const handleCalculationParamChange = (key, value) => {
+  const handleCalculationParamChange = async (key, value) => {
     const updated = { ...calculationParams, [key]: parseFloat(value) || 0 }
     setCalculationParams(updated)
-    storage.set('calculationParams', updated)
+    // Use setToBackend to ensure data persists to backend
+    await storage.setToBackend('calculationParams', updated)
   }
 
   const activityChargeLabels = {

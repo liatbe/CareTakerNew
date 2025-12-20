@@ -52,6 +52,7 @@ const api = {
         return null
       }
 
+      console.log(`📤 [API GET] Fetching ${key} from backend for family ${familyId}`)
       const response = await fetch(`${SUPABASE_URL}/rest/v1/family_data?family_id=eq.${familyId}&key=eq.${key}`, {
         method: 'GET',
         headers: {
@@ -62,14 +63,23 @@ const api = {
         }
       })
 
+      console.log(`📥 [API GET] Response status: ${response.status} for ${key}`)
+
       if (!response.ok) {
+        console.error(`❌ [API GET] Error fetching ${key}: ${response.status}`)
         throw new Error(`API error: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log(`📥 [API GET] Response data for ${key}:`, data)
+      
       if (data && data.length > 0) {
-        return JSON.parse(data[0].value)
+        const parsed = JSON.parse(data[0].value)
+        console.log(`✅ [API GET] Successfully retrieved ${key} from backend`)
+        return parsed
       }
+      
+      console.log(`ℹ️ [API GET] No data found for ${key} in backend`)
       return null
     } catch (error) {
       console.error(`Error fetching ${key} from backend:`, error)
@@ -82,6 +92,7 @@ const api = {
   async set(key, value) {
     if (FALLBACK_TO_LOCALSTORAGE) {
       // Only fallback if backend is not configured
+      console.warn(`⚠️ [API SET] Backend not configured, using localStorage fallback for ${key}`)
       localStorage.setItem(`caretaker_${getFamilyId()}_${key}`, JSON.stringify(value))
       return true
     }
@@ -89,9 +100,11 @@ const api = {
     try {
       const familyId = getFamilyId()
       if (!familyId) {
-        console.warn('No family ID found, cannot save data')
+        console.error(`❌ [API SET] No family ID found, cannot save ${key} to backend`)
         return false
       }
+      
+      console.log(`📤 [API SET] Saving ${key} to backend for family ${familyId}`)
 
       const payload = {
         family_id: familyId,
@@ -101,6 +114,7 @@ const api = {
       }
 
       // Try to update first
+      console.log(`📤 [API SET] Attempting PATCH for ${key}`)
       const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/family_data?family_id=eq.${familyId}&key=eq.${key}`, {
         method: 'PATCH',
         headers: {
@@ -112,8 +126,27 @@ const api = {
         body: JSON.stringify(payload)
       })
 
-      // If update fails (404 or other error), insert new record
-      if (updateResponse.status === 404 || !updateResponse.ok) {
+      console.log(`📥 [API SET] PATCH response status: ${updateResponse.status} for ${key}`)
+
+      // Check if PATCH actually updated a record
+      let needsInsert = false
+      if (updateResponse.ok) {
+        const updateData = await updateResponse.json()
+        // If PATCH returns empty array or no rows, record doesn't exist - need to INSERT
+        if (!updateData || updateData.length === 0) {
+          console.log(`📤 [API SET] PATCH returned no rows (record doesn't exist), attempting POST for ${key}`)
+          needsInsert = true
+        } else {
+          console.log(`✅ [API SET] PATCH successfully updated ${key} (${updateData.length} row(s) updated)`)
+        }
+      } else {
+        console.log(`📤 [API SET] PATCH failed (${updateResponse.status}), attempting POST for ${key}`)
+        needsInsert = true
+      }
+
+      // If update failed or no record exists, insert new record
+      if (needsInsert) {
+        console.log(`📤 [API SET] Attempting POST for ${key}`)
         const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/family_data`, {
           method: 'POST',
           headers: {
@@ -125,11 +158,19 @@ const api = {
           body: JSON.stringify(payload)
         })
 
+        console.log(`📥 [API SET] POST response status: ${insertResponse.status} for ${key}`)
+
         if (!insertResponse.ok) {
-          throw new Error(`Insert failed: ${insertResponse.status}`)
+          const errorText = await insertResponse.text()
+          console.error(`❌ [API SET] Insert failed for ${key}:`, errorText)
+          throw new Error(`Insert failed: ${insertResponse.status} - ${errorText}`)
         }
+        
+        const insertData = await insertResponse.json()
+        console.log(`✅ [API SET] POST successfully created ${key} (${insertData?.length || 1} row(s) created)`)
       }
 
+      console.log(`✅ [API SET] Successfully saved ${key} to backend`)
       return true
     } catch (error) {
       console.error(`Error saving ${key} to backend:`, error)
