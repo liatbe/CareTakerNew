@@ -168,6 +168,8 @@
     "expectedYearlyExpenses": "הוצאות שנתיות צפויות",
     "calculate": "חשב הוצאות שנתיות צפויות",
     "contractDetails": "פרטי חוזה",
+    "familyName": "שם המשפחה",
+    "familyNamePlaceholder": "הזן שם משפחה",
     "contractStartDate": "תאריך התחלת חוזה",
     "monthlyBaseAmount": "סכום בסיס חודשי",
     "calculationFormula": "פרמטרים לחישוב הנוסחה",

@@ -6,6 +6,7 @@ import './Settings.css'
 
 const Settings = () => {
   const { t } = useTranslation()
+  const [familyName, setFamilyName] = useState('')
   const [contractStartDate, setContractStartDate] = useState('')
   const [monthlyBaseAmount, setMonthlyBaseAmount] = useState(6250)
   const [activityCharges, setActivityCharges] = useState({
@@ -36,6 +37,9 @@ const Settings = () => {
   }, [])
 
   const loadSettings = () => {
+    const name = storage.get('familyName', '')
+    if (name) setFamilyName(name)
+    
     const startDate = storage.get('contractStartDate')
     if (startDate) setContractStartDate(startDate)
     
@@ -76,6 +80,11 @@ const Settings = () => {
       const { bituahLeumi, ...paymentsWithoutBituah } = yearly
       setYearlyPayments(paymentsWithoutBituah)
     }
+  }
+
+  const handleFamilyNameChange = (name) => {
+    setFamilyName(name)
+    storage.set('familyName', name)
   }
 
   const handleContractStartDateChange = (date) => {
@@ -222,6 +231,15 @@ const Settings = () => {
         <div className="settings-section">
           <h2>{t('settings.contractDetails')}</h2>
           <div className="settings-card">
+            <div className="setting-item">
+              <label>{t('settings.familyName', 'Family Name')}</label>
+              <input
+                type="text"
+                value={familyName}
+                onChange={(e) => handleFamilyNameChange(e.target.value)}
+                placeholder={t('settings.familyNamePlaceholder', 'Enter family name')}
+              />
+            </div>
             <div className="setting-item">
               <label>{t('settings.contractStartDate')}</label>
               <input

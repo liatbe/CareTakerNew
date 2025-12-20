@@ -169,6 +169,8 @@
     "expectedYearlyExpenses": "Expected Yearly Expenses",
     "calculate": "Calculate Expected Yearly Expenses",
     "contractDetails": "Contract Details",
+    "familyName": "Family Name",
+    "familyNamePlaceholder": "Enter family name",
     "contractStartDate": "Contract Start Date",
     "monthlyBaseAmount": "Monthly Base Amount",
     "calculationFormula": "Calculation Formula Parameters",
