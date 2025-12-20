@@ -79,7 +79,16 @@ function App() {
           console.warn('⚠️ localStorage may not be working. Data may not be saved.')
         }
       }
-      initializeData()
+      
+      // Sync all data from backend first (backend is source of truth)
+      storage.syncAllFromBackend().then(() => {
+        // Then initialize defaults if needed
+        initializeData()
+      }).catch(error => {
+        console.error('Error syncing from backend:', error)
+        // Still initialize defaults even if sync fails
+        initializeData()
+      })
     }
   }, [])
 

@@ -1,12 +1,21 @@
 // Data storage utilities
-// Uses backend API (Supabase) if configured, otherwise falls back to localStorage
-// This allows data to be accessible across devices when backend is configured
-// Works synchronously for backward compatibility, syncs to backend in background
+// Backend (Supabase) is the source of truth - all data is saved to and fetched from backend
+// localStorage is only used as a cache for immediate access
+// All operations prioritize backend to ensure cross-device synchronization
 
 import api from './api.js'
 
 // Enable debug logging (set to false to disable)
 const DEBUG_STORAGE = true
+
+// Check if backend is configured
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const USE_BACKEND = SUPABASE_URL && SUPABASE_ANON_KEY
+
+// Cache of pending backend operations to avoid duplicate requests
+const pendingGets = new Map()
+const pendingSets = new Map()
 
 // Check if localStorage is available
 const isLocalStorageAvailable = () => {
@@ -41,151 +50,320 @@ const getFamilyId = () => {
   }
 }
 
-// Background sync queue
-const syncQueue = []
-let isSyncing = false
-
-const syncToBackend = async () => {
-  if (isSyncing || syncQueue.length === 0) return
-  isSyncing = true
-  
-  while (syncQueue.length > 0) {
-    const { operation, key, value } = syncQueue.shift()
-    try {
-      if (operation === 'set') {
-        await api.set(key, value)
-      } else if (operation === 'remove') {
-        await api.remove(key)
-      }
-    } catch (error) {
-      console.warn(`Background sync failed for ${key}:`, error)
-    }
+// Sync to backend - backend is source of truth, must complete successfully
+const syncToBackend = async (operation, key, value = null) => {
+  if (!USE_BACKEND) {
+    // If no backend configured, only use localStorage
+    return true
   }
   
-  isSyncing = false
+  try {
+    if (operation === 'set') {
+      // Check if there's already a pending set for this key
+      if (pendingSets.has(key)) {
+        await pendingSets.get(key)
+      } else {
+        const promise = api.set(key, value)
+        pendingSets.set(key, promise)
+        try {
+          await promise
+        } finally {
+          pendingSets.delete(key)
+        }
+      }
+    } else if (operation === 'remove') {
+      await api.remove(key)
+    } else if (operation === 'clear') {
+      await api.clear()
+    }
+    return true
+  } catch (error) {
+    console.error(`Backend sync failed for ${key}:`, error)
+    // Log error but don't throw - allow localStorage to work as fallback
+    return false
+  }
 }
 
 export const storage = {
-  // Synchronous GET - reads from localStorage immediately, syncs from backend in background
+  // GET - synchronous for immediate response, but prioritizes backend data
+  // Returns cached value immediately, but syncs from backend in background
   get: (key, defaultValue = null) => {
-    if (!isLocalStorageAvailable()) {
-      console.warn('localStorage not available, returning default value')
-      return defaultValue
-    }
-    
-    try {
-      const storageKey = getStorageKey(key)
-      const data = localStorage.getItem(storageKey)
-      if (data === null) {
-        // Try to load from backend in background
-        api.get(key).then(backendData => {
+    // If backend is configured, try to fetch from backend first (in background)
+    // This ensures we get the latest data from backend
+    if (USE_BACKEND) {
+      // Check if there's already a pending get for this key
+      if (!pendingGets.has(key)) {
+        const promise = api.get(key).then(backendData => {
           if (backendData !== null) {
-            localStorage.setItem(storageKey, JSON.stringify(backendData))
+            // Update cache with backend data
+            if (isLocalStorageAvailable()) {
+              const storageKey = getStorageKey(key)
+              localStorage.setItem(storageKey, JSON.stringify(backendData))
+            }
             if (DEBUG_STORAGE) {
-              console.log(`📖 [Storage GET - API sync] ${key} →`, backendData)
+              console.log(`📖 [Storage GET - Backend] ${key} →`, backendData)
             }
           }
-        }).catch(() => {})
-        
-        if (DEBUG_STORAGE) {
-          console.log(`📖 [Storage GET] ${key} → default value (not found)`)
-        }
-        return defaultValue
+          pendingGets.delete(key)
+          return backendData
+        }).catch(error => {
+          console.error(`Error fetching ${key} from backend:`, error)
+          pendingGets.delete(key)
+          return null
+        })
+        pendingGets.set(key, promise)
       }
-      const parsed = JSON.parse(data)
-      if (DEBUG_STORAGE) {
-        console.log(`📖 [Storage GET] ${key} →`, parsed)
-      }
-      return parsed
-    } catch (e) {
-      console.error(`Error reading storage key "${key}":`, e)
-      return defaultValue
     }
+    
+    // Read from cache for immediate response
+    if (isLocalStorageAvailable()) {
+      try {
+        const storageKey = getStorageKey(key)
+        const data = localStorage.getItem(storageKey)
+        if (data !== null) {
+          const parsed = JSON.parse(data)
+          if (DEBUG_STORAGE) {
+            console.log(`📖 [Storage GET - Cache] ${key} →`, parsed)
+          }
+          return parsed
+        }
+      } catch (e) {
+        console.error(`Error reading from cache for "${key}":`, e)
+      }
+    }
+    
+    if (DEBUG_STORAGE) {
+      console.log(`📖 [Storage GET] ${key} → default value (not found)`)
+    }
+    return defaultValue
   },
   
-  // Synchronous SET - saves to localStorage immediately, syncs to backend in background
-  set: (key, value) => {
-    if (!isLocalStorageAvailable()) {
-      console.error('localStorage not available, cannot save data')
-      return false
+  // GET from backend (async) - use this when you need the latest data from backend
+  getFromBackend: async (key, defaultValue = null) => {
+    if (!USE_BACKEND) {
+      // Fallback to localStorage if no backend
+      return storage.get(key, defaultValue)
     }
     
     try {
-      const storageKey = getStorageKey(key)
-      const stringValue = JSON.stringify(value)
-      localStorage.setItem(storageKey, stringValue)
-      // Verify the save worked
-      const verify = localStorage.getItem(storageKey)
-      if (verify !== stringValue) {
-        console.error(`Storage verification failed for key: ${storageKey}`)
+      const backendData = await api.get(key)
+      if (backendData !== null) {
+        // Update cache
+        if (isLocalStorageAvailable()) {
+          const storageKey = getStorageKey(key)
+          localStorage.setItem(storageKey, JSON.stringify(backendData))
+        }
+        if (DEBUG_STORAGE) {
+          console.log(`📖 [Storage GET - Backend (async)] ${key} →`, backendData)
+        }
+        return backendData
+      }
+      return defaultValue
+    } catch (error) {
+      console.error(`Error fetching ${key} from backend:`, error)
+      // Fallback to cache
+      return storage.get(key, defaultValue)
+    }
+  },
+  
+  // SET - saves to cache immediately, then syncs to backend (backend is source of truth)
+  set: (key, value) => {
+    // Update localStorage cache immediately for responsive UI
+    if (isLocalStorageAvailable()) {
+      try {
+        const storageKey = getStorageKey(key)
+        const stringValue = JSON.stringify(value)
+        localStorage.setItem(storageKey, stringValue)
+        // Verify the save worked
+        const verify = localStorage.getItem(storageKey)
+        if (verify !== stringValue) {
+          console.error(`Storage verification failed for key: ${storageKey}`)
+          return false
+        }
+        if (DEBUG_STORAGE) {
+          console.log(`💾 [Storage SET - Cache] ${key} →`, value)
+        }
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          console.error('Storage quota exceeded. Please clear some data.')
+          alert('Storage quota exceeded. Please clear some browser data or use a different browser.')
+          return false
+        } else {
+          console.error(`Error saving storage key "${key}":`, e)
+          return false
+        }
+      }
+    }
+    
+    // Sync to backend immediately (backend is source of truth, must succeed)
+    // Don't await to keep it non-blocking, but ensure it completes
+    syncToBackend('set', key, value).then(success => {
+      if (success) {
+        if (DEBUG_STORAGE) {
+          console.log(`💾 [Storage SET - Backend] ${key} synced successfully`)
+        }
+      } else {
+        console.error(`💾 [Storage SET - Backend] ${key} sync failed`)
+      }
+    }).catch(error => {
+      console.error(`Backend sync error for ${key}:`, error)
+    })
+    
+    return true
+  },
+  
+  // SET to backend (async) - use this when you need to ensure backend save completes
+  setToBackend: async (key, value) => {
+    // Update cache first
+    if (isLocalStorageAvailable()) {
+      try {
+        const storageKey = getStorageKey(key)
+        localStorage.setItem(storageKey, JSON.stringify(value))
+      } catch (e) {
+        console.error(`Error updating cache for ${key}:`, e)
+      }
+    }
+    
+    // Save to backend (source of truth)
+    if (!USE_BACKEND) {
+      return true
+    }
+    
+    try {
+      const success = await syncToBackend('set', key, value)
+      if (DEBUG_STORAGE) {
+        console.log(`💾 [Storage SET - Backend (async)] ${key} ${success ? 'synced' : 'failed'}`)
+      }
+      return success
+    } catch (error) {
+      console.error(`Backend save error for ${key}:`, error)
+      return false
+    }
+  },
+  
+  // REMOVE - removes from cache immediately, then from backend (source of truth)
+  remove: (key) => {
+    // Remove from localStorage cache immediately
+    if (isLocalStorageAvailable()) {
+      try {
+        const storageKey = getStorageKey(key)
+        localStorage.removeItem(storageKey)
+        if (DEBUG_STORAGE) {
+          console.log(`🗑️  [Storage REMOVE - Cache] ${key}`)
+        }
+      } catch (e) {
+        console.error(`Error removing storage key "${key}":`, e)
         return false
       }
-      if (DEBUG_STORAGE) {
-        console.log(`💾 [Storage SET] ${key} →`, value)
-      }
-      
-      // Queue for background sync to backend
-      syncQueue.push({ operation: 'set', key, value })
-      syncToBackend()
-      
-      return true
-    } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        console.error('Storage quota exceeded. Please clear some data.')
-        alert('Storage quota exceeded. Please clear some browser data or use a different browser.')
-      } else {
-        console.error(`Error saving storage key "${key}":`, e)
-      }
-      return false
-    }
-  },
-  
-  // Synchronous REMOVE - removes from localStorage immediately, syncs to backend in background
-  remove: (key) => {
-    if (!isLocalStorageAvailable()) {
-      return false
     }
     
-    try {
-      const storageKey = getStorageKey(key)
-      localStorage.removeItem(storageKey)
-      if (DEBUG_STORAGE) {
-        console.log(`🗑️  [Storage REMOVE] ${key}`)
+    // Remove from backend (source of truth)
+    syncToBackend('remove', key).then(success => {
+      if (success) {
+        if (DEBUG_STORAGE) {
+          console.log(`🗑️  [Storage REMOVE - Backend] ${key} removed successfully`)
+        }
+      } else {
+        console.error(`🗑️  [Storage REMOVE - Backend] ${key} remove failed`)
       }
-      
-      // Queue for background sync to backend
-      syncQueue.push({ operation: 'remove', key })
-      syncToBackend()
-      
-      return true
-    } catch (e) {
-      console.error(`Error removing storage key "${key}":`, e)
-      return false
-    }
+    }).catch(error => {
+      console.error(`Backend remove error for ${key}:`, error)
+    })
+    
+    return true
   },
   
-  // Synchronous CLEAR - clears localStorage immediately, syncs to backend in background
+  // CLEAR - clears cache immediately, then clears backend (source of truth)
   clear: () => {
-    if (!isLocalStorageAvailable()) {
-      return false
+    // Clear localStorage cache immediately
+    if (isLocalStorageAvailable()) {
+      try {
+        const familyId = getFamilyId()
+        const keys = Object.keys(localStorage)
+        keys.forEach(key => {
+          if (key.startsWith(`caretaker_${familyId}_`)) {
+            localStorage.removeItem(key)
+          }
+        })
+        if (DEBUG_STORAGE) {
+          console.log(`🗑️  [Storage CLEAR - Cache] cleared for family ${familyId}`)
+        }
+      } catch (e) {
+        console.error('Error clearing storage:', e)
+        return false
+      }
+    }
+    
+    // Clear backend (source of truth)
+    syncToBackend('clear').then(success => {
+      if (success) {
+        if (DEBUG_STORAGE) {
+          console.log(`🗑️  [Storage CLEAR - Backend] cleared successfully`)
+        }
+      } else {
+        console.error(`🗑️  [Storage CLEAR - Backend] clear failed`)
+      }
+    }).catch(error => {
+      console.error('Backend clear error:', error)
+    })
+    
+    return true
+  },
+  
+  // Sync all data from backend to cache - call this on app initialization
+  syncAllFromBackend: async () => {
+    if (!USE_BACKEND) {
+      if (DEBUG_STORAGE) {
+        console.log('📦 [Storage] Backend not configured, skipping sync')
+      }
+      return
     }
     
     try {
       const familyId = getFamilyId()
-      const keys = Object.keys(localStorage)
-      keys.forEach(key => {
-        if (key.startsWith(`caretaker_${familyId}_`)) {
-          localStorage.removeItem(key)
+      if (!familyId) {
+        if (DEBUG_STORAGE) {
+          console.log('📦 [Storage] No family ID, skipping sync')
+        }
+        return
+      }
+      
+      // Fetch all data for this family from backend
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/family_data?family_id=eq.${familyId}`, {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json'
         }
       })
       
-      // Sync clear to backend
-      api.clear().catch(() => {})
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.status}`)
+      }
       
-      return true
-    } catch (e) {
-      console.error('Error clearing storage:', e)
-      return false
+      const data = await response.json()
+      
+      // Update cache with all backend data
+      if (isLocalStorageAvailable()) {
+        data.forEach(item => {
+          try {
+            const storageKey = getStorageKey(item.key)
+            localStorage.setItem(storageKey, item.value)
+          } catch (e) {
+            console.error(`Error updating cache for ${item.key}:`, e)
+          }
+        })
+        
+        if (DEBUG_STORAGE) {
+          console.log(`📦 [Storage] Synced ${data.length} items from backend to cache`)
+        }
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Error syncing from backend:', error)
+      return []
     }
   },
   
