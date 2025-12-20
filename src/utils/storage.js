@@ -345,11 +345,17 @@ export const storage = {
       const data = await response.json()
       
       // Update cache with all backend data
+      // Ensure consistency: always JSON.stringify values before storing to localStorage
+      // This matches how set() stores values (line 175: JSON.stringify(value))
+      // The backend stores values as JSON strings, but we ensure consistency here
       if (isLocalStorageAvailable()) {
         data.forEach(item => {
           try {
             const storageKey = getStorageKey(item.key)
-            localStorage.setItem(storageKey, item.value)
+            // Backend stores values as JSON strings, but ensure we store as string
+            // If item.value is already a string, use it; otherwise stringify it
+            const stringValue = typeof item.value === 'string' ? item.value : JSON.stringify(item.value)
+            localStorage.setItem(storageKey, stringValue)
           } catch (e) {
             console.error(`Error updating cache for ${item.key}:`, e)
           }
@@ -461,13 +467,39 @@ export const initializeData = () => {
   }
   
   const yearlyPayments = storage.get('yearlyPayments')
-  if (!yearlyPayments) {
+  if (!yearlyPayments || Object.keys(yearlyPayments).length === 0) {
+    // Initialize yearlyPayments with year_0 structure
+    // All components expect structure: { year_0: { medicalInsurance: 0, ... }, year_1: { ... }, ... }
     storage.set('yearlyPayments', {
-      medicalInsurance: 0,
-      taagidPayment: 2000,
-      taagidHandling: 840,
-      havraaAmountPerDay: 174,
-      havraaDays: 5
+      year_0: {
+        medicalInsurance: 0,
+        taagidPayment: 2000,
+        taagidHandling: 840,
+        havraaAmountPerDay: 174,
+        havraaDays: 5
+      }
     })
+  } else {
+    // Migrate old flat structure to new year-based structure if needed
+    // Check if it's the old flat structure (has medicalInsurance at root level)
+    if (yearlyPayments.medicalInsurance !== undefined && !yearlyPayments.year_0) {
+      // Migrate old structure to year_0
+      const migrated = {
+        year_0: {
+          medicalInsurance: yearlyPayments.medicalInsurance || 0,
+          taagidPayment: yearlyPayments.taagidPayment || 2000,
+          taagidHandling: yearlyPayments.taagidHandling || 840,
+          havraaAmountPerDay: yearlyPayments.havraaAmountPerDay || 174,
+          havraaDays: yearlyPayments.havraaDays || 5
+        }
+      }
+      // Preserve any existing year-based entries
+      Object.keys(yearlyPayments).forEach(key => {
+        if (key.startsWith('year_')) {
+          migrated[key] = yearlyPayments[key]
+        }
+      })
+      storage.set('yearlyPayments', migrated)
+    }
   }
 }
