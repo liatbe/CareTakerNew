@@ -312,7 +312,16 @@
 }
 
 .payment-desc {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #555;
+}
+
+.payment-date {
+  color: var(--ios-secondary-label, #8e8e93);
+  font-size: 0.9em;
+  font-weight: 400;
 }
 
 .payment-amount {

@@ -10,6 +10,7 @@ const ShevahCoverage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [rows, setRows] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [editingValues, setEditingValues] = useState({ hours: '', amountPerHour: '' })
 
   const currentMonthKey = getMonthKey(selectedDate)
 
@@ -58,14 +59,24 @@ const ShevahCoverage = () => {
     saveRows([...rows, newRow])
     // Automatically start editing the new row
     setEditingId(newRow.id)
+    setEditingValues({ hours: '0', amountPerHour: '0' })
   }
 
-  const handleSaveEdit = (id, hours, amountPerHour) => {
+  const handleSaveEdit = (id) => {
+    // Use current editing values from state
+    const hoursValue = parseFloat(editingValues.hours) || 0
+    const amountValue = parseFloat(editingValues.amountPerHour) || 0
     const updated = rows.map(r => 
-      r.id === id ? { ...r, hours: parseFloat(hours) || 0, amountPerHour: parseFloat(amountPerHour) || 0 } : r
+      r.id === id ? { ...r, hours: hoursValue, amountPerHour: amountValue } : r
     )
     saveRows(updated)
     setEditingId(null)
+    setEditingValues({ hours: '', amountPerHour: '' })
+  }
+
+  const handleStartEdit = (row) => {
+    setEditingId(row.id)
+    setEditingValues({ hours: row.hours.toString(), amountPerHour: row.amountPerHour.toString() })
   }
 
   const handleDelete = (id) => {
@@ -112,18 +123,30 @@ const ShevahCoverage = () => {
               </thead>
               <tbody>
                 {rows.map(row => {
-                  const rowTotal = row.hours * row.amountPerHour
+                  // Use editing values if this row is being edited, otherwise use row values
+                  const currentHours = editingId === row.id ? (parseFloat(editingValues.hours) || 0) : row.hours
+                  const currentAmount = editingId === row.id ? (parseFloat(editingValues.amountPerHour) || 0) : row.amountPerHour
+                  const rowTotal = currentHours * currentAmount
                   return (
                     <tr key={row.id}>
                       <td>
                         {editingId === row.id ? (
                           <input
                             type="number"
-                            defaultValue={row.hours}
-                            onBlur={(e) => handleSaveEdit(row.id, e.target.value, row.amountPerHour)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                handleSaveEdit(row.id, e.target.value, row.amountPerHour)
+                            value={editingValues.hours}
+                            onChange={(e) => {
+                              const newValue = e.target.value
+                              setEditingValues(prev => ({ ...prev, hours: newValue }))
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === 'Tab') {
+                                e.preventDefault()
+                                // Focus on amountPerHour field
+                                const amountInput = e.target.closest('tr').querySelector('input[type="number"]:last-of-type')
+                                if (amountInput) {
+                                  amountInput.focus()
+                                  amountInput.select()
+                                }
                               }
                             }}
                             step="0.1"
@@ -137,11 +160,15 @@ const ShevahCoverage = () => {
                         {editingId === row.id ? (
                           <input
                             type="number"
-                            defaultValue={row.amountPerHour}
-                            onBlur={(e) => handleSaveEdit(row.id, row.hours, e.target.value)}
-                            onKeyPress={(e) => {
+                            value={editingValues.amountPerHour}
+                            onChange={(e) => {
+                              const newValue = e.target.value
+                              setEditingValues(prev => ({ ...prev, amountPerHour: newValue }))
+                            }}
+                            onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                handleSaveEdit(row.id, row.hours, e.target.value)
+                                e.preventDefault()
+                                handleSaveEdit(row.id)
                               }
                             }}
                             step="0.01"
@@ -156,9 +183,15 @@ const ShevahCoverage = () => {
                       <td>
                         <button
                           className="edit-button"
-                          onClick={() => editingId === row.id ? setEditingId(null) : setEditingId(row.id)}
+                          onClick={() => {
+                            if (editingId === row.id) {
+                              handleSaveEdit(row.id)
+                            } else {
+                              handleStartEdit(row)
+                            }
+                          }}
                         >
-                          {t('common.edit')}
+                          {editingId === row.id ? t('common.save') : t('common.edit')}
                         </button>
                       </td>
                       <td>

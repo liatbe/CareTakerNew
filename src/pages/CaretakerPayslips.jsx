@@ -720,7 +720,12 @@ const CaretakerPayslips = () => {
                 const remainingAmount = payment.amount - paidAmount
                 return (
                   <div key={payment.id || idx} className="payment-item">
-                    <div className="payment-desc">{payment.description}</div>
+                    <div className="payment-desc">
+                      <span>{payment.description}</span>
+                      {payment.date && (
+                        <span className="payment-date">({formatDate(payment.date, 'dd/MM/yyyy')})</span>
+                      )}
+                    </div>
                     <div className="payment-amount">{payment.amount.toFixed(2)} ₪</div>
                     <div className="payment-status-select">
                       <select 
